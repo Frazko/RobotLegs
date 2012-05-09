@@ -1,10 +1,9 @@
 package agency.client.project.services {
-	import agency.client.project.model.vo.CityVO;
 	import agency.client.project.model.AppModel;
-	import agency.client.project.model.vo.AllSectionsVO;
-	import agency.client.project.model.vo.ImageVO;
+	import agency.client.project.model.vo.CitiesVO;
+	import agency.client.project.model.vo.CityVO;
 	import agency.client.project.model.vo.ProgressVO;
-	import agency.client.project.model.vo.SectionVO;
+	import agency.client.project.signals.CompleteLoad;
 	import agency.client.project.signals.ProgressSignal;
 
 	import com.greensock.events.LoaderEvent;
@@ -19,8 +18,6 @@ package agency.client.project.services {
 
 	import org.robotlegs.mvcs.Actor;
 
-	import flash.display.Bitmap;
-
 	/**
 	 * model.services.XMLService
 	 *
@@ -31,6 +28,10 @@ package agency.client.project.services {
 		public var appModel : AppModel;
 		[Inject]
 		public var progressSignal : ProgressSignal;
+		
+		[Inject]
+		public var loadingComplete :CompleteLoad;
+		
 		private var _loader : XMLLoader;
 
 		public function AssetService() : void {
@@ -46,31 +47,33 @@ package agency.client.project.services {
 
 		private function completeHandler(e : LoaderEvent) : void {
 			trace("AssetService.completeHandler(e)  ");
-			// loadingComplete.dispatch();
-			_parseData();
+			
+			 parceData();
 		}
 
-		private function _parseData() : void {
-			var citiesVO : Array= [];
-
-			var xml : XML = _loader.content as XML;
-			//trace(xml.toString());
-
-			var cities : XMLList = xml..city;
-
-			for each (var node : XML in cities) {
-				var cityVO : CityVO = new CityVO();
+		private function parceData() : void {
+			trace("parceData");
+			var xml:XML = _loader.content as XML;
+            
+            var vo:CitiesVO = new CitiesVO();
+            vo.citiesArray = [];
+            
+            var citiesXML:XMLList = xml.assets.city;
+			
+			for each (var node : XML in citiesXML) {
+				trace("ForEACHHHH NODE "+node)
+				var cityVO:CityVO = new CityVO();
+				cityVO.name = node.@name;
 				cityVO.id = node.@id;
-				cityVO.code = node.@code;
-				citiesVO.push(cityVO)
-
-				trace("AssetService::_parseData()::cityVO.id: "+cityVO.id);
+				vo.citiesArray.push(cityVO);
 			}
-				appModel.allCities = citiesVO;
+			appModel.citiesVo = vo;
+			trace("loading " + loadingComplete);
+			loadingComplete.dispatch();
 		}
 
 		private function progressHandler(e : LoaderEvent) : void {
-			trace("AssetService.ProgressHandler(e)  :" + e.target.progress);
+			trace("AssetService.ProgressHandler(e)  :"+e.target.progress);
 			progressSignal.dispatch(new ProgressVO(e.target.progress));
 		}
 

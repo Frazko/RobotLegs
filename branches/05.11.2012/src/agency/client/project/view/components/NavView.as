@@ -1,7 +1,6 @@
 package agency.client.project.view.components {
-	import agency.client.project.model.constants.ApplicationConstants;
 	import agency.client.project.model.vo.CityVO;
-
+	import agency.client.project.model.vo.CitiesVO;
 	import org.osflash.signals.Signal;
 
 	import flash.display.Sprite;
@@ -12,44 +11,61 @@ package agency.client.project.view.components {
 	 * @author acollingtemp
 	 */
 	public class NavView extends Sprite {
-		public static const BUTTON_HEIGTH : Number = 50;
-		private static const SPACER : uint = 20;
-		private static const BUTTON_START_Y : uint = 10;
+		private static const BUTTON_SPACER : Number = 10;
+		private var _button : CustomButton;
 		public var clicked : Signal;
-		private var spacer : Number = 25;
-
+		
+		
 		public function NavView() {
-			clicked = new Signal();
-			(stage) ? initView() : addEventListener(Event.ADDED_TO_STAGE, onAddedToStage, false, 0, true);
+				clicked = new Signal();
+			(stage) ? initView() : addEventListener(Event.ADDED_TO_STAGE, onAddedToStage, false, 0, true);	
+			
 		}
 
-		private function onAddedToStage(e : Event) : void {
+		private function onAddedToStage(e:Event) : void {
+			
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			initView();
 		}
 
 		private function initView() : void {
+			
+		
+			//createButton();
+			
 		}
 
-		public function createButton(vo : CityVO, _x : Number, _y : Number) : void {
-			var _button : CustomButton = new CustomButton(vo);
-			_button.x = _x;
-			_button.y = _y;
-			// _button.height = BUTTON_HEIGTH;
-			_button.addEventListener(MouseEvent.CLICK, onClick);
-			addChild(_button);
+		private function createButton() : void {
+			
+//			_button = new CustomButton();
+//			_button.x = 300;
+//			_button.y = 20;
+//			addChild(_button);
+//			_button.addEventListener(MouseEvent.CLICK, onClick);
+//			
+			
 		}
 
 		private function onClick(event : MouseEvent) : void {
-			clicked.dispatch((event.target as CustomButton).vo as CityVO);
-			trace("@@@@@@@@@@@@@ONCLICKKKKKKKK")
+			trace("onclick " + (event.target as CustomButton).vo.conditions);
+			clicked.dispatch((event.target as CustomButton).vo);
+			
 		}
 
-		public function createNav(vo : Array) : void {
-			for (var i : int = 0; i < vo.length; i++) {
-				var city : CityVO = vo[i] as CityVO;
-				createButton(city, ApplicationConstants.BUTTON_HEIGHT, i * (BUTTON_START_Y + spacer));
+		public function setCities(vo : CitiesVO) : void {
+			trace("NavView setCities()"+vo.citiesArray.length);
+			for (var i : int = 0; i < vo.citiesArray.length; i++) {
+				var button:CustomButton = new CustomButton((vo.citiesArray[i] as CityVO));
+				addChild(button);
+				trace("mamones "+button.height);
+				button.y = (button.height + BUTTON_SPACER)*i;
+				button.addEventListener(MouseEvent.CLICK, onClick);
 			}
+			
+			
+			
 		}
+		
+		
 	}
 }

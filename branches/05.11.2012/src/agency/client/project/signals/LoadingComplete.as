@@ -2,8 +2,11 @@ package agency.client.project.signals {
 	import org.osflash.signals.Signal;
 
 	/**
-	 * @author franciscomurillo
+	 * @author boszdigital
 	 */
 	public class LoadingComplete extends Signal {
+		public function LoadingComplete() {
+			super();
+		}
 	}
 }

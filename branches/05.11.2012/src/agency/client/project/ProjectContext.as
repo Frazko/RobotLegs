@@ -1,26 +1,27 @@
 package agency.client.project {
+	import agency.client.project.signals.CompleteLoad;
+	import agency.client.project.signals.LoadingComplete;
 	import agency.client.project.controller.CitySelectedCommand;
+	import agency.client.project.controller.SectionSelectedCommand;
 	import agency.client.project.controller.StartupCompleteCommand;
 	import agency.client.project.model.AppModel;
 	import agency.client.project.services.AssetService;
-	import agency.client.project.services.WeatherService;
-	import agency.client.project.signals.AllSectionsSet;
+	import agency.client.project.services.WheaterService;
 	import agency.client.project.signals.CitiesSet;
 	import agency.client.project.signals.CitySelected;
-	import agency.client.project.signals.FavouriteImageSet;
-	import agency.client.project.signals.LoadingComplete;
-	import agency.client.project.signals.NewImageSelected;
 	import agency.client.project.signals.ProgressSignal;
+	import agency.client.project.signals.SectionSelected;
 	import agency.client.project.signals.SectionSet;
-	import agency.client.project.signals.WeatherSet;
-	import agency.client.project.signals.WeatherSignal;
+	import agency.client.project.signals.WheaterSet;
 	import agency.client.project.view.components.NavView;
 	import agency.client.project.view.components.PreloaderView;
-	import agency.client.project.view.components.WeatherView;
+	import agency.client.project.view.components.TitleView;
+	import agency.client.project.view.components.WheaterView;
 	import agency.client.project.view.mediators.NavViewMediator;
 	import agency.client.project.view.mediators.PreloaderMediator;
 	import agency.client.project.view.mediators.StageMediator;
-	import agency.client.project.view.mediators.WeatherMediator;
+	import agency.client.project.view.mediators.TitleMediator;
+	import agency.client.project.view.mediators.WheaterViewMediator;
 
 	import org.robotlegs.base.ContextEvent;
 	import org.robotlegs.mvcs.SignalContext;
@@ -39,34 +40,36 @@ package agency.client.project {
 			mapModel();
 			mapService();
 			mapView();
-			super.startup();;
+			super.startup();
 		}
 
 		private function mapController() : void {
+			//commandMap.mapEvent (ContextEvent.STARTUP_COMPLETE, StartupCompleteCommand, ContextEvent, true);
 			commandMap.mapEvent(ContextEvent.STARTUP_COMPLETE, StartupCompleteCommand);
-			
 			//TODO add commands here
+			signalCommandMap.mapSignalClass(SectionSelected, SectionSelectedCommand);
 			signalCommandMap.mapSignalClass(CitySelected, CitySelectedCommand);
 			
 		}
 
+	
+		//Used when it goes up from model to view.
 		private function mapView() : void {
-			mediatorMap.mapView(WeatherView, WeatherMediator);
+			mediatorMap.mapView(TitleView, TitleMediator);
 			mediatorMap.mapView(PreloaderView, PreloaderMediator);
 			mediatorMap.mapView(NavView, NavViewMediator);
 			mediatorMap.mapView(Main, StageMediator);
+			mediatorMap.mapView(WheaterView, WheaterViewMediator);
 		}
 		
 		private function mapSignals():void {
 			injector.mapSingleton(ProgressSignal);
 			injector.mapSingleton(LoadingComplete);
-			injector.mapSingleton(AllSectionsSet);
+			injector.mapSingleton(CompleteLoad);
 			injector.mapSingleton(SectionSet);
-			injector.mapSingleton(NewImageSelected);
-			injector.mapSingleton(FavouriteImageSet);
 			injector.mapSingleton(CitiesSet);
-			injector.mapSingleton(WeatherSet);
-			injector.mapSingleton(WeatherSignal);
+			injector.mapSingleton(WheaterSet);
+			
 		}
 
 		private function mapModel() : void {
@@ -74,8 +77,9 @@ package agency.client.project {
 		}
 		
 		private function mapService() : void {
-			injector.mapSingleton(WeatherService);
 			injector.mapSingleton(AssetService);
+			injector.mapSingleton(WheaterService);
+			
 			
 		}
 

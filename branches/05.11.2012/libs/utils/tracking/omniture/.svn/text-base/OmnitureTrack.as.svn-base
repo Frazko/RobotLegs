@@ -1,0 +1,9 @@
+package com.digitas.utils.tracking.omniture {
+	import org.osflash.signals.Signal;
+
+	public class OmnitureTrack extends Signal {
+		public function OmnitureTrack() {
+			super(OmnitureVO);
+		}
+	}
+}

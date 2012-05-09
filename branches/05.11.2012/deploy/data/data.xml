@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <data>
 	<assets>
-		<city id="Tokio" code="1118370" />
-		<city id="New York" code="2459115" />
-		<city id="London" code="44418" />
-		<city id="Paris" code="615702" />
-		<city id="Heredia" code="58468" />
-		<city id="Sao Paulo" code="455827" />   			 
-	</assets>
+        <city name="Tokio" id="1118370" />
+        <city name="New York" id="2459115" />
+        <city name="London" id="44418" />
+        <city name="Paris" id="615702" />
+        <city name="Heredia" id="58468" />
+        <city name="Sao Paulo" id="455827" />                
+    </assets>
 </data>
-
-
 

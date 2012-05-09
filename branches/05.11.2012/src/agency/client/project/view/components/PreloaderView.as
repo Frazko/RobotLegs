@@ -59,7 +59,7 @@ package agency.client.project.view.components {
 
 
 		public function hide() : void {
-			TweenMax.to(_holder, 3, {autoAlpha:0, onComplete:onHidden});
+			TweenMax.to(_holder, 1, {autoAlpha:0, onComplete:onHidden});
 		}
 
 		private function onHidden() : void {

@@ -1,5 +1,5 @@
 package agency.client.project.controller {
-	import agency.client.project.model.constants.ApplicationConstants;
+	import agency.client.project.model.constants.ApplictionConstants;
 	import agency.client.project.services.AssetService;
 	import org.robotlegs.mvcs.SignalCommand;
 
@@ -12,8 +12,9 @@ package agency.client.project.controller {
 		public var assetService:AssetService;
 		
 		
+		
 		override public function execute() : void {
-			assetService.load(ApplicationConstants.XML_PATH);
+			assetService.load(ApplictionConstants.XML_PATH);
 		}
 		
 		

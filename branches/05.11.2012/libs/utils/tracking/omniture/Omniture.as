@@ -1,0 +1,117 @@
+package utils.tracking.omniture {
+	import com.omniture.AppMeasurement;
+
+	import org.osflash.thunderbolt.Logger;
+
+	import flash.display.Sprite;
+	import flash.display.Stage;
+	import flash.errors.IllegalOperationError;
+	import flash.events.Event;
+	import flash.utils.Timer;
+	import flash.events.TimerEvent;
+	import flash.net.navigateToURL;
+	import flash.net.URLRequest;
+
+	public class Omniture extends Sprite {
+		public var settings : OmnitureSettings;
+		private var _appMeasurement : AppMeasurement;
+		private var _stage : Stage;
+		// For Exit links
+		private var _timer : Timer;
+		private var _exitLink : String;
+		private var _exitWindow : String = '_self';
+
+		public function Omniture() : void {
+			_appMeasurement = new AppMeasurement();
+			settings = new OmnitureSettings(_appMeasurement);
+			init();
+		}
+
+		private function init() : void {			
+			addChild(_appMeasurement);
+		}
+
+		public function track(d : OmnitureVO) : void {
+			trace("------------------<< omniture is tracking...........  >>---------------");
+			if (settings.account) {
+				var data : OmnitureVO = d;
+
+				_appMeasurement.clearVars();
+
+				_appMeasurement.pageName = data.pageName;
+				_appMeasurement.pageURL = data.pageURL;
+				_appMeasurement.referrer = data.referrer;
+				_appMeasurement.purchaseID = data.purchaseID;
+				_appMeasurement.transactionID = data.transactionID;
+				_appMeasurement.channel = data.channel;
+				_appMeasurement.server = data.server;
+				_appMeasurement.pageType = data.pageType;
+				_appMeasurement.vistorID = data.visitorID;
+				_appMeasurement.variableProvider = data.variableProvider;
+				_appMeasurement.campaign = data.campaign;
+				_appMeasurement.state = data.state;
+				_appMeasurement.zip = data.zip;
+
+				for (var i : int = 1; i < data.props.length; ++i) {
+					_appMeasurement['prop' + i] = data.props[i];
+				}
+
+				for (i = 1; i < data.heirs.length; ++i) {
+					_appMeasurement['hier' + i] = data.heirs[i];
+				}
+
+				for (i = 1; i < data.evars.length; ++i) {
+					_appMeasurement['eVar' + i] = data.evars[i];
+				}
+
+				// Products
+				var products : String;
+				for (i = 0; i < data.products.length; ++i) {
+					var product : OmnitureProductVO = data.products[i] as OmnitureProductVO;
+					if (product) {
+						if (products)
+							products += ',' + product.toString();
+						else
+							products = product.toString();
+					}
+				}
+				if (products) _appMeasurement.products = products;
+
+				// Events
+				_appMeasurement.events = (data.events != null && data.events.length != 0 ? data.events.toString() : "");
+
+				if (data.pageName) {
+					_appMeasurement.track();
+				} else {
+					// TrackLink
+					var url : String = (data.linkURL) ? data.linkURL : this.stage.loaderInfo.url;
+					var type : String = data.type || OmnitureVO.TYPE_CUSTOM_LINK;
+					var name : String = (data.linkName) ? data.linkName : '';
+
+					_appMeasurement.trackLink(url, type, name);
+
+					if (data.type == OmnitureVO.TYPE_EXIT_LINK || data.type == OmnitureVO.TYPE_FILE_DOWNLOAD || (url != this.stage.loaderInfo.url)) {
+						_timer = new Timer(settings.delayTracking + 100, 1);
+						_timer.addEventListener(TimerEvent.TIMER_COMPLETE, onExitTimer);
+						_exitLink = data.linkURL;
+						_exitWindow = data.linkWindow || '_self';
+						_timer.start();
+					}
+				}
+			} else {
+				throw new IllegalOperationError('OmnitureTracker Failed to Track - Missing Account Name in OmnitureSettings');
+			}
+		}
+
+		private function onExitTimer(e : TimerEvent) : void {
+			Logger.info("Omniture.onExitTimer(e)");
+
+			var req : URLRequest = new URLRequest(_exitLink);
+			try {
+				navigateToURL(req, _exitWindow);
+			} catch (e : Error) {
+				Logger.info('OmnitureTracker::Navigate to URL failed: ', e.message);
+			}
+		}
+	}
+}

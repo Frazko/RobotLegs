@@ -1,6 +1,6 @@
 ﻿package agency.client.project {
-	import agency.client.project.view.components.FavouritesView;
-	import agency.client.project.view.components.WeatherView;
+	import agency.client.project.view.components.WheaterView;
+	import agency.client.project.view.components.TitleView;
 	import com.greensock.TweenLite;
 	import agency.client.project.view.components.NavView;
 	import com.greensock.loading.XMLLoader;
@@ -34,7 +34,7 @@
 		private function initApp() : void {
 			
 			stage.align = StageAlign.TOP_LEFT;
-		 	stage.scaleMode = StageScaleMode.NO_SCALE;
+			stage.scaleMode = StageScaleMode.NO_SCALE;
 			
 			// force fonts to be imported
 			MyFonts;
@@ -43,25 +43,27 @@
 			TweenPlugin.activate([AutoAlphaPlugin]);
 
 			// create robotlegs context but don't autostart
-			_context = new ProjectContext(this);
+			_context = new ProjectContext(this, false);
+			_context.startup();
 			addPreloader();
 			addNav();
-			addTitle();
-			addFavouritesView();
+			//addTitle();
+			addWheaterView();
 
 			// startup robotlegs
 		}
 
-		private function addTitle() : void {
-			addChild(new WeatherView());
+		private function addWheaterView() : void {
+			addChild(new WheaterView());
+			
 		}
-		
-		private function addFavouritesView() : void {
-			addChild(new FavouritesView());
+
+		private function addTitle() : void {
+			addChild(new TitleView());
 		}
 
 		private function addNav() : void {
-			addChild(new NavView());
+			addChild(new NavView())
 			
 		}
 
@@ -76,7 +78,7 @@
 
 		// example function to show how to get an image
 		public function addImage() : void {
-			/*
+			
 			var loader:XMLLoader = LoaderMax.getLoader("main");
 			
 			var image1 : Bitmap = LoaderMax.getLoader("dogs1").rawContent;
@@ -91,9 +93,6 @@
 			addChild(image2);
 			TweenLite.to(image1, 1, {alpha:1, delay:1});
 			TweenLite.to(image2, 1, {alpha:1, delay:1.5});
-			 * 
-			 * 
-			 */
 		}
 	}
 }

@@ -1,9 +1,10 @@
 package agency.client.project.model.vo {
 	/**
-	 * @author franciscomurillo
+	 * @author alejandromurillo
 	 */
 	public class CityVO {
-		public var id : String;
-		public var code : String ;
+		public var id : int;
+		public var name : String;
+		public var conditions:WheaterVO;
 	}
 }

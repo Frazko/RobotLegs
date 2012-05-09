@@ -1,9 +1,10 @@
 package agency.client.project.view.mediators {
-	import org.robotlegs.mvcs.Mediator;
 	import agency.client.project.model.vo.ProgressVO;
-	import agency.client.project.signals.LoadingComplete;
+	import agency.client.project.signals.CompleteLoad;
 	import agency.client.project.signals.ProgressSignal;
 	import agency.client.project.view.components.PreloaderView;
+
+	import org.robotlegs.mvcs.Mediator;
 
 	/**
 	 * @author acolling
@@ -14,12 +15,12 @@ package agency.client.project.view.mediators {
 		[Inject]
 		public var progressSignal : ProgressSignal;
 		[Inject]
-		public var loadingComplete : LoadingComplete;
+		public var loadingComplete :CompleteLoad;
 
 		override public function onRegister() : void {
 			trace("PreloaderMediator.onRegister()  ");
-			loadingComplete.add(onLoadingComplete);
 			progressSignal.add(onProgress);
+			loadingComplete.add(onLoadingComplete);
 		}
 
 		override public function onRemove() : void {
@@ -29,6 +30,7 @@ package agency.client.project.view.mediators {
 		}
 
 		private function onLoadingComplete() : void {
+			trace("onLoadingComplete");
 			view.hide();
 		}
 

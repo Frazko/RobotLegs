@@ -1,0 +1,23 @@
+package dna.nissan.leafscience.view.components {
+	import com.greensock.TweenMax;
+	import com.greensock.data.TweenLiteVars;
+	import dna.nissan.leafscience.signals.ForceDestroy;
+
+	import flash.display.Sprite;
+	import flash.events.Event;
+
+	/**
+	 * @author acolling
+	 */
+	public class CustomContainer extends Sprite {
+		public static const DESTROY : String = "destroy";
+
+		public function destroy() : void {
+			// FIXME : The 'killAll' method is messing with other parts of the application... don't use it! use a recursive 'killTweensOf' instead.
+			TweenMax.killAll();
+			var e : Event = new Event(DESTROY, true);
+			dispatchEvent(e);
+			parent.removeChild(this);
+		}
+	}
+}

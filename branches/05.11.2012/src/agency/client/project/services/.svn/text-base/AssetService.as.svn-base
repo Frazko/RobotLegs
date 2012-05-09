@@ -1,0 +1,200 @@
+package dna.nissan.leafscience.model.services
+{
+	import dna.nissan.leafscience.model.AppModel;
+	import dna.nissan.leafscience.model.vo.InfoVO;
+	import dna.nissan.leafscience.model.vo.PanelVO;
+	import dna.nissan.leafscience.model.vo.ProgressVO;
+	import dna.nissan.leafscience.model.vo.SectionVO;
+	import dna.nissan.leafscience.signals.ProgressSignal;
+
+	import com.greensock.events.LoaderEvent;
+	import com.greensock.loading.CSSLoader;
+	import com.greensock.loading.DataLoader;
+	import com.greensock.loading.ImageLoader;
+	import com.greensock.loading.LoaderMax;
+	import com.greensock.loading.MP3Loader;
+	import com.greensock.loading.SWFLoader;
+	import com.greensock.loading.VideoLoader;
+	import com.greensock.loading.XMLLoader;
+	import com.nissan.fwf.api.ISystem;
+
+	import org.osflash.signals.Signal;
+	import org.robotlegs.mvcs.Actor;
+
+	/**
+	 * model.services.XMLService
+	 *
+	 * @author YourName
+	 */
+	public class AssetService extends Actor
+	{
+		[Inject]
+		public var soundService:SoundService;
+		[Inject]
+		public var appModel:AppModel;
+		[Inject]
+		public var fwfService:FWFService;
+		[Inject]
+		public var progressSignal:ProgressSignal;
+		[Inject]
+		public var system:ISystem;
+
+		private var _config:XML;
+		private var _loader:LoaderMax;
+		public var loaded:Signal = new Signal ();
+
+		private var _path:String;
+
+
+		public function AssetService ():void
+		{
+			// Remeber to import each type of *Loader* you will be using
+			LoaderMax.activate ([ImageLoader, SWFLoader, DataLoader, MP3Loader, XMLLoader, VideoLoader, CSSLoader]);
+
+		}
+
+		public function load (config:XML):void
+		{
+			trace ("-----AssetService.load(config)  config XML passed:");
+			trace (config.toString ());
+			_path = system.getConfiguration ().getString ("fwf_module_path");
+			trace ("HAVE FWF PATH?:" + _path);
+
+			_config = config;
+			_loader = new LoaderMax ({onProgress:qProgressHandler, onComplete:qCompleteHandler, onError:qErrorHandler});
+			trace ("parsing config to get loaders");
+			// Parse the preloaded config file of LoaderMax Loaders
+			XMLLoader.parseLoaders (_config, _loader, _loader);
+			// add fwf path
+			_loader.replaceURLText ("{fwfPath}", _path, true);
+			// TODO - put correct path
+			// _loader.replaceURLText("{fwfPath}", "/Users/acolling/Development/FDTWorkspace/60210408-Nissan-Leaf-Science/deploy/module/", true);
+			// Kick off the loading
+			trace ("-----starting load......");
+			_loader.load ();
+		}
+
+		private function qProgressHandler (e:LoaderEvent):void
+		{
+			// trace("loading progress: " + e.target.progress);
+			progressSignal.dispatch (new ProgressVO (e.target.progress));
+		}
+
+		private function qErrorHandler (e:LoaderEvent):void
+		{
+			trace ("LOADING ERROR..... qErrorHandler(): error occured with " + e.target + ": " + e.text);
+		}
+
+		private function qCompleteHandler (e:LoaderEvent):void
+		{
+			trace ("AssetService.qCompleteHandler(e)");
+
+			parseSections ();
+
+			parseSounds ();
+
+			loaded.dispatch ();
+		}
+
+		public function parseSections ():void
+		{
+			trace ("AssetService.parseSections()  ");
+			// Loop through all the sections creating each SectionVO
+			for each (var section : XML in _config.sections.section)
+			{
+				var vo:SectionVO = new SectionVO ();
+				vo.id = section.@id;
+				vo.title = section.@title;
+				vo.videoID = section.@videoId;
+				vo.swfID = section.@swfID;
+				// todo add this to xml!!
+
+				/*
+				sect1 is Range
+				sect2 is Performance
+				sect3 is Charge
+				sect4 is Cost
+				 * 
+				 */
+
+				switch (vo.id)
+				{
+					case "sect1" :
+						vo.disclaimer = '<p class="whiteDisclaimer">*Dependent on driving conditions.<br>Average distances provided by the National Travel Survey</p>';
+						break;
+
+					case "sect2" :
+						vo.disclaimer = '<p class="whiteDisclaimer">simulation uses specific nissan models</p>';
+
+						break;
+
+					case "sect3" :
+						vo.disclaimer = '<p class="whiteDisclaimer">Road tax cost based on Nissan QASHQAI 1.6 provided by DVLA.</p><p class="whiteDisclaimer">Petrol cost based on Nissan QASHQAI 1.6 at 1.352 £/L.</p><p class="whiteDisclaimer">Taxi, Bus and Congestion Charge costs provided by TFL.</p>';
+
+						break;
+
+					case "sect4" :
+						vo.disclaimer = '';
+						break;
+				}
+
+				//vo.disclaimer = (vo.id == "sect1") ? '"<p class="whiteDisclaimer">*Dependent on driving conditions.<br>Average distances provided by the National Travel Survey</p>"' : '"<p class="whiteDisclaimer">simulation uses specific nissan models</p>"';
+
+				// add info panel
+				var infoVO:InfoVO = new InfoVO ();
+				infoVO.panels = [];
+				infoVO.infoVid = section.@infoVid;
+				infoVO.id = vo.id;
+				var panelsList:XMLList = section..panel;
+
+
+				for (var i:int = 0; i < panelsList.length (); i++)
+				{
+					var xml:XML = panelsList[i] as XML;
+					var panel:PanelVO = new PanelVO ();
+					var copyText:XMLList = xml.p;
+
+					for (var j:int = 0; j < copyText.length (); j++)
+					{
+						if (j == 0)
+						{
+							panel.copy = copyText[j].toXMLString ();
+						}
+						else if (j == 1)
+						{
+							panel.altText = copyText[j].toXMLString ();
+						}
+					}
+					// recode this section more quickly - bad logic decided here in this way
+					if (panel.copy && panel.copy.indexOf ("Video") > 0)
+					{
+						panel.isVideoButton = true;
+					}
+					/*panel.videoID = xml.@vidID;
+					// fixme needs fixing
+					if (panel.videoID){
+						
+					}*/
+					infoVO.panels.push (panel);
+				}
+
+				vo.infoVO = infoVO;
+				appModel.addSection (vo);
+			}
+		}
+
+		private function parseSounds ():void
+		{
+			// Loop through all the loaded assets putting sounds inside the SoundManager
+			for (var i:int = 0; i < _loader.getChildren (true).length; i++)
+			{
+				if (_loader.getChildren (true)[i] is MP3Loader)
+				{
+					trace ("adding mp3:" + _loader.getChildren (true)[i].name);
+					soundService.addPreloadedSound (MP3Loader (_loader.getChildren (true)[i]).content, _loader.getChildren (true)[i].name);
+				}
+
+			}
+		}
+	}
+}

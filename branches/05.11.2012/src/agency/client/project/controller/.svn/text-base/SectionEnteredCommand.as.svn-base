@@ -1,0 +1,29 @@
+package dna.nissan.leafscience.controller {
+	import org.osflash.statemachine.core.IPayload;
+	import dna.nissan.leafscience.model.vo.SectionVO;
+	import dna.nissan.leafscience.model.AppModel;
+	import dna.nissan.leafscience.model.services.AssetService;
+
+	import org.osflash.statemachine.core.IFSMController;
+	import org.robotlegs.mvcs.SignalCommand;
+
+	/**
+	 * @author acolling
+	 */
+	public class SectionEnteredCommand extends SignalCommand {
+		
+		[Inject]
+		public var fsmController : IFSMController;
+		[Inject]
+		public var assetService : AssetService;
+		[Inject]
+		public var appModel : AppModel;
+		[Inject]
+		public var payload:IPayload;
+		
+		override public function execute() : void {
+			trace("SectionEnteredCommand.execute()");
+			appModel.selectedSection = payload.body as SectionVO;
+		}
+	}
+}

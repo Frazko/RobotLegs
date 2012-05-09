@@ -1,0 +1,40 @@
+////////////////////////////////////////////////////////////////////////////////
+//Code stub generated with:
+//                                Crocus Modeller
+//                      Robust UML editor for AS3 & Flex devs.
+//                             http://CrocusModeller.com
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+package dna.nissan.leafscience.view.components {
+
+	/**
+	 * view.components.CustomLoader
+	 *
+	 * @author YourName
+	 */
+	public class CustomLoader implements IView {
+
+		///////////////////////
+		// METHODS
+		///////////////////////
+		
+		public function pause():void {
+			//TODO
+		}
+
+		public function destroy():void {
+			//TODO
+		}
+
+		public function show():void {
+			//TODO
+		}
+
+		public function hide():void {
+			//TODO
+		}
+
+	}
+}

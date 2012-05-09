@@ -1,0 +1,45 @@
+package dna.nissan.leafscience.view.components {
+	import com.greensock.TweenMax;
+	import flash.display.MovieClip;
+
+	import com.greensock.loading.LoaderMax;
+	import com.greensock.loading.SWFLoader;
+
+	import flash.display.Sprite;
+
+	/**
+	 * @author acolling
+	 */
+	public class DisposableNavView extends Sprite implements IView {
+		private var _movieClip : MovieClip;
+
+		public function DisposableNavView() : void {
+			var swfLoader : SWFLoader = LoaderMax.getLoader("landing-page") as SWFLoader;
+			_movieClip = swfLoader.rawContent;
+			addChild(_movieClip);
+		}
+
+		public function pause() : void {
+		}
+
+
+		public function destroy() : void {
+			if (_movieClip) {
+				_movieClip.destroy();	
+			}
+			while(numChildren>0){
+				removeChildAt(0);
+			}
+			// TODO
+		}
+
+		public function show() : void {
+			_movieClip.show();
+		}
+
+		public function hide() : void {
+			TweenMax.to(this, .5, {autoAlpha:0, onComplete:destroy});
+			
+		}
+	}
+}

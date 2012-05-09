@@ -1,0 +1,186 @@
+package dna.nissan.leafscience.view.mediators {
+	import dna.nissan.leafscience.model.constants.SoundConstants;
+	import dna.nissan.leafscience.constants.FSMConstants;
+	import dna.nissan.leafscience.model.AppModel;
+	import dna.nissan.leafscience.model.vo.ResizeVO;
+	import dna.nissan.leafscience.model.vo.SectionVO;
+	import dna.nissan.leafscience.model.vo.SoundVO;
+	import dna.nissan.leafscience.signals.ForceDestroy;
+	import dna.nissan.leafscience.signals.SoundSignal;
+	import dna.nissan.leafscience.view.components.CustomButton;
+	import dna.nissan.leafscience.view.components.NavView;
+
+	import com.greensock.TweenLite;
+	import com.greensock.TweenMax;
+
+	import org.osflash.statemachine.core.IPayload;
+	import org.osflash.statemachine.core.ISignalState;
+
+	import flash.display.DisplayObject;
+	import flash.events.Event;
+	import flash.events.MouseEvent;
+
+	/**
+	 * view.mediators.NavMediator
+	 *
+	 * @author YourName
+	 */
+	public class NavMediator extends AbstractMediator implements IHasStateTransition, IHasResizeSignal {
+		
+		[Inject]
+		public var appModel : AppModel;
+		[Inject(name="state/disposablemenu")]
+		public var disposableMenuState : ISignalState;
+		[Inject(name="state/sectionswf")]
+		public var sectionSWF : ISignalState;
+		[Inject]
+		public var view : NavView;
+		[Inject]
+		public var soundSignal : SoundSignal;
+		[Inject]
+		public var forceDestroy : ForceDestroy;
+
+		override public function onRegister() : void {
+			// trace("NavMediator.onRegister()");
+			forceDestroy.add(onForceDestroy);
+			disposableMenuState.entered.add(onEnteredDisposable);
+			sectionSWF.entered.add(onEnteredSection);
+			resizeSignal.add(onResize);
+			addViewListeners();
+		}
+
+		override public function onRemove() : void {
+			// trace("NavMediator.onRegister()");
+			forceDestroy.remove(onForceDestroy);
+			disposableMenuState.entered.remove(onEnteredDisposable);
+			sectionSWF.entered.remove(onEnteredSection);
+			resizeSignal.remove(onResize);
+			removeViewListeners();
+		}
+
+		private function onForceDestroy() : void {
+			trace("force destroy in SECTION MED");
+			onRemove();
+			view.destroy();
+		}
+
+		private function addViewListeners() : void {
+			view.addEventListener("showSection", onViewClick);
+			view.addEventListener(MouseEvent.ROLL_OVER, onNavRollover);
+			view.addEventListener(MouseEvent.ROLL_OUT, onNavRollOut);
+		}
+		private function removeViewListeners() : void {
+			view.removeEventListener("showSection", onViewClick);
+			view.removeEventListener(MouseEvent.ROLL_OVER, onNavRollover);
+			view.removeEventListener(MouseEvent.ROLL_OUT, onNavRollOut);
+		}
+
+		private function onNavRollOut(event : MouseEvent) : void {
+			var vo : SoundVO = new SoundVO();
+			vo.soundName = SoundConstants.MENU_OUT;
+			vo.soundVol = 1;
+			// soundSignal.dispatch(vo);
+		}
+
+		private function onNavRollover(event : MouseEvent) : void {
+			var vo : SoundVO = new SoundVO();
+			vo.soundName = SoundConstants.MENU_OUT;
+			vo.soundVol = 1;
+			soundSignal.dispatch(vo);
+		}
+
+		private function onViewClick(event : Event) : void {
+			trace("NavMediator.onViewClick");
+			// FIXME
+			var sect : uint = view._movieclip.PAGE_DESTINATION as uint;
+			trace("NavMediator.onViewClick - PAGE DESTINATION = "+view._movieclip.PAGE_DESTINATION);
+
+			var soundVO : SoundVO = new SoundVO();
+			soundVO.soundName = SoundConstants.MENU_CLOSE;
+			trace("dispatching menuclose");
+			soundVO.soundVol = .5;
+
+			switch(sect) {
+				case 0:
+					// FIXME not right!
+					fsmController.action(FSMConstants.NEXT, appModel.sections[0]);
+					soundSignal.dispatch(soundVO);
+					break;
+				case 1:
+					fsmController.action(FSMConstants.NEXT, appModel.sections[2]);
+					soundSignal.dispatch(soundVO);
+					break;
+				case 2:
+					fsmController.action(FSMConstants.NEXT, appModel.sections[3]);
+					soundSignal.dispatch(soundVO);
+					break;
+				case 3:
+					fsmController.action(FSMConstants.NEXT, appModel.sections[1]);
+					soundSignal.dispatch(soundVO); 
+					break;
+				default:
+			}
+		}
+
+		private function onEnteredDisposable(payload : IPayload) : void {
+			createNavView();
+			onResize(fwfService.resizeVO);
+		}
+
+		private function createNavView() : void {
+			view.setData(appModel.sections);
+			view.addEventListener(MouseEvent.CLICK, onNavClick);
+		}
+
+		private function onNavClick(event : MouseEvent) : void {
+			trace("NavMediator.onNavClick");
+			//return;  I think I have put this in by accident
+			var vo : SoundVO = new SoundVO();
+			vo.soundName = SoundConstants.CLICK;
+			vo.soundVol = 1;
+			soundSignal.dispatch(vo);
+
+			var targ : DisplayObject = event.target as DisplayObject;
+			if (targ is CustomButton) {
+				var cB : CustomButton = event.target as CustomButton;
+				transitionOut(cB.vo);
+			}
+		}
+
+		override public function transitionIn() : void {
+			TweenLite.to(view, 1, {autoAlpha:1});
+		}
+
+		override public function transitionOut(sectionVO : SectionVO) : void {
+			TweenLite.to(view, 1, {autoAlpha:0, onComplete:onTransistionOut, onCompleteParams:[sectionVO]});
+		}
+
+		private function onTransistionOut(sectionVO : SectionVO) : void {
+			fsmController.action(FSMConstants.NEXT, sectionVO);
+		}
+
+		private function onEnteredSection(payload : IPayload) : void {
+			TweenMax.delayedCall(6, showNav);
+		}
+
+		private function showNav() : void {
+			trace("NavMediator.showNav()  ");
+			var vo : SoundVO = new SoundVO();
+			vo.soundName = SoundConstants.MENU_OPEN;
+			vo.soundVol = .2;
+			soundSignal.dispatch(vo);
+			onResize(fwfService.resizeVO);
+			view.show();
+			//bad hack to put to the top
+			view.parent.setChildIndex(view, view.parent.numChildren-1);
+			onResize(fwfService.resizeVO);
+		}
+
+		override public function onResize(resizeVO : ResizeVO) : void {
+			// view.x = 100;
+			// trace("resize width:"+resizeVO.width+":"+res)
+			view.x = (resizeVO.width * 0.5) - (view.width * .5);
+			view.y = (resizeVO.height ) - 150;
+		}
+	}
+}

@@ -1,0 +1,221 @@
+package dna.nissan.leafscience.view.mediators
+{
+	import dna.nissan.leafscience.model.AppModel;
+	import dna.nissan.leafscience.model.vo.ResizeVO;
+	import dna.nissan.leafscience.view.components.FooterView;
+	import dna.utils.omniture.OmnitureTrack;
+	import dna.utils.omniture.OmnitureVO;
+
+	import com.nissan.fwf.api.ISystem;
+	import com.nissan.fwf.api.NissanAPI;
+	import com.nissan.fwf.api.tools.ILink;
+
+	import org.osflash.statemachine.core.IPayload;
+	import org.osflash.statemachine.core.ISignalState;
+
+	import flash.events.MouseEvent;
+	import flash.net.URLRequest;
+	import flash.net.navigateToURL;
+
+	/**
+	 * @author Karl Freeman 2011 (c) karlfreeman.co.uk
+	 */
+	public class FooterMediator extends AbstractMediator
+	{
+		[Inject]
+		public var view:FooterView;
+		[Inject(name="state/sectionswf")]
+		public var sectionSWF:ISignalState;
+		[Inject]
+		public var track:OmnitureTrack;
+		[Inject]
+		public var appModel:AppModel;
+		[Inject]
+		public var sys:ISystem;
+		[Inject]
+		public var system:ISystem;
+
+		override public function onRegister ():void
+		{
+			sectionSWF.entered.add (onSectionEntered);
+			sectionSWF.tearDown.add (onSectionTearDown);
+			resizeSignal.add (onResize);
+			onResize (fwfService.resizeVO);
+			// view.footerClicked.add(onFooterClicked);
+
+			view.joinConversationContainer.addEventListener (MouseEvent.CLICK, onConversation);
+			view.downloadBrochureContainer.addEventListener (MouseEvent.CLICK, onBrochure);
+			view.nextGreenCarContainer.addEventListener (MouseEvent.CLICK, onNextGreenCar);
+			view.cooTool.addEventListener (MouseEvent.CLICK, onCOOTool);
+		}
+
+
+
+		private function getXML (type:String, url:String):XML
+		{
+			// var type : String = "ext";
+			// var url : String = "http://www.google.com";
+			return 	<link type={type}>
+						<src>{url}</src>
+					</link>;
+		}
+
+		private function onBrochure (event:MouseEvent):void
+		{
+
+			var xml:XMLList = system.getConfiguration ().getDatas ("fwf_author_config").link.(@id == "brochure");
+			var linkObject:ILink = NissanAPI.getLink (xml[0]);
+			linkObject.navigate ();
+		}
+
+		// fbook
+		private function onConversation (event:MouseEvent):void
+		{
+			var xml:XMLList = system.getConfiguration ().getDatas ("fwf_author_config").link.(@id == "facebook");
+			var linkObject:ILink = NissanAPI.getLink (xml[0]);
+			linkObject.navigate ();
+			var vo:OmnitureVO = new OmnitureVO ();
+			if (appModel.selectedSection.id == "sect1")
+			{
+				vo.addNissanProperties ("sexyscience:range", "sexyscience-range-facebook");
+			}
+			else if (appModel.selectedSection.id == "sect2")
+			{
+				vo.addNissanProperties ("sexyscience:performance", "sexyscience-performance-facebook");
+			}
+			else if (appModel.selectedSection.id == "sect3")
+			{
+				vo.addNissanProperties ("sexyscience:charge", "sexyscience-charge-facebook");
+			}
+			else if (appModel.selectedSection.id == "sect4")
+			{
+				vo.addNissanProperties ("sexyscience:cost", "sexyscience-cost-facebook");
+			}
+			track.dispatch (vo);
+		}
+
+		private function onNextGreenCar (event:MouseEvent):void
+		{
+			var xml:XMLList = system.getConfiguration ().getDatas ("fwf_author_config").link.(@id == "nextgreencar");
+			var linkObject:ILink = NissanAPI.getLink (xml[0]);
+			linkObject.navigate ();
+			if (appModel.selectedSection.id == "sect3")
+			{
+				var vo:OmnitureVO = new OmnitureVO ();
+				vo.addNissanProperties ("sexyscience:cost", "sexyscience-charge-ngc");
+				track.dispatch (vo);
+			}
+		}
+
+		private function onCOOTool (event:MouseEvent):void
+		{
+			var xml:XMLList = system.getConfiguration ().getDatas ("fwf_author_config").link.(@id == "coo");
+			var linkObject:ILink = NissanAPI.getLink (xml[0]);
+			linkObject.navigate ();
+			if (appModel.selectedSection.id == "sect4")
+			{
+				var vo:OmnitureVO = new OmnitureVO ();
+				// NOT CURRENTLY TRACKED OR IN TRACKING PLAN
+				vo.addNissanProperties ("sexyscience:cost", "sexyscience-cost-coo");
+				track.dispatch (vo);
+			}
+		}
+
+
+		private static function getURL (url:String):void
+		{
+			var request:URLRequest = new URLRequest (url);
+			try
+			{
+				navigateToURL (request, '_blank');
+				// second argument is target
+			}
+			catch (e:Error)
+			{
+				trace ("Error occurred!");
+			}
+		}
+
+		private function onSectionEntered (payload:IPayload):void
+		{
+			positionFooterContainers ();
+			
+			view.show ();
+			onResize (fwfService.resizeVO);
+			if (appModel.selectedSection.id == "sect3")
+			{
+				showNGC ();
+			}
+			else
+			{
+				hideNGC ();
+			}
+			if (appModel.selectedSection.id == "sect4")
+			{
+				showCOO (true);
+			}
+			else
+			{
+				showCOO (false);
+			}
+		}
+
+		private function positionFooterContainers ():void
+		{
+			switch (appModel.selectedSection.id)
+			{
+				case "sect1" :
+					view.updateCTAItemsPosY (view.downloadBrochureContainer.height);
+					break;
+
+				case "sect2" :
+					view.updateCTAItemsPosY (view.downloadBrochureContainer.height);
+					break;
+
+				case "sect3" :
+					view.updateCTAItemsPosY (0);
+					break;
+
+				case "sect4" :
+					view.updateCTAItemsPosY (0);
+					break;
+			}
+		}
+
+		private function showCOO (boolean:Boolean):void
+		{
+			view.cooTool.visible = boolean;
+		}
+
+		private function showNGC ():void
+		{
+			view.nextGreenCarContainer.visible = true;
+		}
+
+		private function hideNGC ():void
+		{
+			view.nextGreenCarContainer.visible = false;
+		}
+
+		private function onSectionTearDown ():void
+		{
+			view.hide ();
+		}
+
+		private function onFooterClicked (id:String):void
+		{
+			trace ("FooterMediator.onFooterClicked(id)");
+			trace (fwfService.getLinkByID (id));
+			fwfService.getLinkByID (id).navigate ();
+		}
+
+		override public function onResize (resizeVO:ResizeVO):void
+		{
+			/*view.bottomRight.x = (resizeVO.width * 0.5) + 512 - view.bottomRight.width;
+			view.bottomRight.y = (resizeVO.height * 0.5) + 384 - view.bottomRight.height;*/
+			// view.x = resizeVO.width - 170;
+			view.x = resizeVO.width * .7 + (15);
+			view.y = resizeVO.height - view.height - 15;
+		}
+	}
+}

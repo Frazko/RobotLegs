@@ -1,0 +1,13 @@
+package dna.nissan.leafscience.signals {
+	import dna.nissan.leafscience.model.vo.ResizeVO;
+	import org.osflash.signals.Signal;
+
+	/**
+	 * @author Karl Freeman 2011 (c) karlfreeman.co.uk
+	 */
+	public class ResizeSignal extends Signal {
+		public function ResizeSignal() {
+			super(ResizeVO);
+		}
+	}
+}

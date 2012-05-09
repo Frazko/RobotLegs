@@ -1,0 +1,17 @@
+package dna.nissan.leafscience.model.constants {
+	/**
+	 * @author acolling
+	 */
+	public class DisplayConstants {
+		public static const STAGE_WIDTH : int = 1024;
+		public static const STAGE_HEIGHT : int = 768;
+		public static const COLOR_NAVY : uint = 0x0033A2;
+		public static const INFO_PANEL_WIDTH : uint = 239; //243;
+		public static const INFO_PANEL_PADDING : uint = 12;
+		public static const LINE_ALPHA : Number = 0.2;
+		public static const BOTTOM_NAV_PADDING : int = 200;
+		public static const YELLOW : uint = 0xfcee21;
+		public static const DARK_NAVY : uint = 0x000a11;
+		public static const INFO_VIDEO_HEIGHT : Number = 162;
+	}
+}

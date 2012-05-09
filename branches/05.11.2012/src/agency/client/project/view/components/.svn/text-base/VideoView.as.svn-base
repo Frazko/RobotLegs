@@ -1,0 +1,79 @@
+package dna.nissan.leafscience.view.components {
+	import graphics.Drawing;
+
+	import com.greensock.events.LoaderEvent;
+	import com.greensock.loading.LoaderMax;
+	import com.greensock.loading.VideoLoader;
+
+	import org.osflash.signals.Signal;
+
+	import flash.display.Shape;
+	import flash.display.Sprite;
+	import flash.media.Video;
+
+	/**
+	 * view.components.IntroVideoView
+	 *
+	 * @author YourName
+	 */
+	public class VideoView extends Sprite implements IView {
+		public var videoCompleted : Signal;
+		private var currentVideoLoader : VideoLoader;
+
+		public function setVideo(videoID : String) : void {
+			trace("VideoView.setVideo(videoID) : " + videoID);
+
+			currentVideoLoader = LoaderMax.getLoader(videoID);
+
+			var vid : Video = currentVideoLoader.rawContent;
+			addChild(vid);
+
+			createSignals();
+			addListeners();
+
+			currentVideoLoader.playProgress = 0;
+			currentVideoLoader.playVideo();
+		}
+
+		private function createSignals() : void {
+			if (!videoCompleted) {
+				videoCompleted = new Signal();
+			}
+		}
+
+		private function addListeners() : void {
+			currentVideoLoader.addEventListener(VideoLoader.VIDEO_COMPLETE, onVideoComplete);
+		}
+
+		private function onVideoComplete(event : LoaderEvent) : void {
+			videoCompleted.dispatch();
+		}
+
+		public function pause() : void {
+			currentVideoLoader.pause();
+		}
+
+		public function destroy() : void {
+			// trace("VideoView.destroy()");
+
+			// TODO remove only used for testing
+			if (currentVideoLoader) {
+				currentVideoLoader.removeEventListener(VideoLoader.VIDEO_COMPLETE, onVideoComplete);
+				removeVideo();
+				currentVideoLoader = null;
+			}
+		}
+
+		private function removeVideo() : void {
+			while (numChildren > 0) {
+				removeChildAt(0);
+			}
+		}
+
+		public function show() : void {
+		}
+
+		public function hide() : void {
+		}
+	}
+}

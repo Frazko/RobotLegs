@@ -1,0 +1,157 @@
+package dna.nissan.leafscience.view.components {
+	import utils.Utils;
+	import mx.core.SpriteAsset;
+	import flash.display.Bitmap;
+	import com.greensock.loading.ImageLoader;
+	import org.osflash.signals.Signal;
+	import flash.events.TextEvent;
+
+	import com.greensock.TweenMax;
+
+	import flash.text.TextFieldAutoSize;
+	import flash.text.TextField;
+
+	import dna.nissan.leafscience.model.constants.DisplayConstants;
+
+	import com.greensock.loading.CSSLoader;
+	import com.greensock.loading.LoaderMax;
+
+	import flash.display.Sprite;
+	import flash.text.AntiAliasType;
+	import flash.text.StyleSheet;
+
+	/**
+	 * @author Karl Freeman 2011 (c) karlfreeman.co.uk
+	 */
+	public class FooterView extends Sprite implements IView
+	{
+		public var bottomRight : Sprite;
+		public var footerClicked : Signal = new Signal(String);
+		public var downloadBrochureContainer : Sprite;
+		public var joinConversationContainer : Sprite;
+		public var nextGreenCarContainer : Sprite;
+		public var cooTool : Sprite;
+		
+		private static const SPACER : int = 3;
+		private var _downloadBrochure : TextField;
+		private var _joinConversation : TextField;
+		private var _nextGreenCar : TextField;
+		private var _cooTool : TextField;
+
+		public function FooterView() {
+			
+			bottomRight = new Sprite();
+						
+			var cssLoader : CSSLoader = LoaderMax.getLoader("global-css") as CSSLoader;
+			var styleSheet : StyleSheet = cssLoader.content as StyleSheet;
+			// styleSheet
+			_downloadBrochure = new TextField();
+			_downloadBrochure.styleSheet = styleSheet;
+			_downloadBrochure.embedFonts = true;
+			_downloadBrochure.multiline = false;
+			_downloadBrochure.wordWrap = false;
+			_downloadBrochure.autoSize = TextFieldAutoSize.LEFT;
+			//_downloadBrochure.width = 130;
+			_downloadBrochure.selectable = false;
+			_downloadBrochure.antiAliasType = AntiAliasType.ADVANCED;
+			_downloadBrochure.htmlText = "<p class='footerButton'><a href='event:brochure'>download a brochure</a></p>";
+		//	_downloadBrochure.addEventListener(TextEvent.LINK, onFooterClicked);
+			
+			downloadBrochureContainer = new Sprite();
+			downloadBrochureContainer.x = 0;
+			downloadBrochureContainer.y = 0;
+			downloadBrochureContainer.addChild(_downloadBrochure);
+			bottomRight.addChild(downloadBrochureContainer);
+			
+			
+			_joinConversation = new TextField();
+			_joinConversation.styleSheet = styleSheet;
+			_joinConversation.embedFonts = true;
+			_joinConversation.multiline = false;
+			_joinConversation.wordWrap = false;
+			_joinConversation.autoSize = TextFieldAutoSize.LEFT;
+			_joinConversation.width = 130;
+			_joinConversation.selectable = false;
+			_joinConversation.antiAliasType = AntiAliasType.ADVANCED;
+			_joinConversation.htmlText = "<p class='footerButton'><a href='event:conversation'>join the conversation</a></p>";
+	//		_joinConversation.x = 27 + _downloadBrochure.textWidth;
+			//_joinConversation.addEventListener(TextEvent.LINK, onFooterClicked);
+			
+			joinConversationContainer = new Sprite();
+			joinConversationContainer.y = downloadBrochureContainer.y+downloadBrochureContainer.height;
+			joinConversationContainer.addChild(_joinConversation);
+			bottomRight.addChild(joinConversationContainer);
+			
+			_nextGreenCar = new TextField();
+			_nextGreenCar.styleSheet = styleSheet;
+			_nextGreenCar.embedFonts = true;
+			_nextGreenCar.multiline = false;
+			_nextGreenCar.wordWrap = false;
+			_nextGreenCar.autoSize = TextFieldAutoSize.LEFT;
+			_nextGreenCar.width = 130;
+			_nextGreenCar.selectable = false;
+			_nextGreenCar.antiAliasType = AntiAliasType.ADVANCED;
+			_nextGreenCar.htmlText = "<p class='footerButton'><a href='event:nextgreencar'>nextgreencar.com</a></p>";
+			
+			nextGreenCarContainer = new Sprite();
+			nextGreenCarContainer.y = joinConversationContainer.y+joinConversationContainer.height;
+			nextGreenCarContainer.addChild(_nextGreenCar);
+			bottomRight.addChild(nextGreenCarContainer);
+			
+			//COO TOOL- only appears on cost
+			
+			_cooTool = new TextField();
+			_cooTool.styleSheet = styleSheet;
+			_cooTool.embedFonts = true;
+			_cooTool.multiline = false;
+			_cooTool.wordWrap = false;
+			_cooTool.autoSize = TextFieldAutoSize.LEFT;
+			_cooTool.width = 130;
+			_cooTool.selectable = false;
+			_cooTool.antiAliasType = AntiAliasType.ADVANCED;
+			_cooTool.htmlText = "<p class='footerButton'><a href='event:cootool'>cost of ownership<a></p>";
+			
+			cooTool = new Sprite();
+			cooTool.y = nextGreenCarContainer.y;//is the same as only one or the other appears
+			cooTool.addChild(_cooTool);
+			bottomRight.addChild(cooTool);
+
+		
+			
+			
+			addChild(bottomRight);
+			
+			
+			Utils.makeButton(joinConversationContainer);
+			Utils.makeButton(cooTool);
+			
+			this.alpha = 0;
+			this.visible = false;
+		}
+
+		private function onFooterClicked(e : TextEvent) : void {
+			footerClicked.dispatch(e.text);
+		}
+
+		public function pause() : void {
+		}
+
+		public function destroy() : void {
+		}
+
+		public function show() : void {
+			TweenMax.to(this, 0.5, {autoAlpha:1});
+		}
+
+		public function hide() : void {
+			TweenMax.to(this, 0.5, {autoAlpha:0});
+		}
+
+		public function updateCTAItemsPosY (startPosY:Number):void
+		{
+			downloadBrochureContainer.y = startPosY;
+			joinConversationContainer.y = downloadBrochureContainer.y+downloadBrochureContainer.height;
+			nextGreenCarContainer.y = joinConversationContainer.y+joinConversationContainer.height;
+		}
+	}
+}

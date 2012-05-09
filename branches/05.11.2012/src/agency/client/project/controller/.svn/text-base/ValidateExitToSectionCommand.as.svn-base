@@ -1,0 +1,37 @@
+package dna.nissan.leafscience.controller {
+	import dna.nissan.leafscience.model.AppModel;
+	import dna.nissan.leafscience.model.vo.SectionVO;
+
+	import com.greensock.loading.LoaderMax;
+	import com.greensock.loading.LoaderStatus;
+
+	import org.osflash.statemachine.core.IFSMController;
+	import org.osflash.statemachine.core.IPayload;
+	import org.robotlegs.mvcs.SignalCommand;
+
+	/**
+	 * @author Karl Freeman 2011 (c) karlfreeman.co.uk
+	 */
+	public class ValidateExitToSectionCommand extends SignalCommand {
+		[Inject]
+		public var fsmController : IFSMController;
+		[Inject]
+		public var payload:IPayload;
+		[Inject]
+		public var appModel : AppModel;
+
+		override public function execute() : void {
+			 trace("ValidateEntryToSectionCommand.execute()");
+			 trace("ValidateEntryToSectionCommand SECTION ID = "+SectionVO(payload.body).id);
+			 var loader:LoaderMax = LoaderMax.getLoader(SectionVO(payload.body).id);
+			 trace("----------------------  LOADER STATUS:"+loader.status);
+			 if (loader.status != LoaderStatus.COMPLETED ) {
+				//Invalidate the entry
+				fsmController.cancel(loader.status.toString(),payload.body);
+			 }else{
+				//set the data on the model
+				appModel.selectedSection = payload.body as SectionVO;
+			 }
+		}
+	}
+}

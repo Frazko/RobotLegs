@@ -1,0 +1,17 @@
+package dna.nissan.leafscience.model.vo {
+	/**
+	 * @author acolling
+	 */
+	public class SoundVO {
+		
+		public var soundName:String;
+		public var soundVol : Number = 1;
+		public var loop : Number;
+		
+		public function SoundVO(){
+			soundVol = 1;
+			loop = 0;			
+		}
+		
+	}
+}

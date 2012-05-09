@@ -1,0 +1,163 @@
+package dna.nissan.leafscience.view.mediators {
+	import dna.nissan.leafscience.model.constants.SoundConstants;
+	import dna.nissan.leafscience.signals.ForceDestroy;
+	import dna.utils.omniture.OmnitureVO;
+	import dna.nissan.leafscience.events.SoundEvent;
+	import dna.nissan.leafscience.model.AppModel;
+	import dna.nissan.leafscience.model.vo.ResizeVO;
+	import dna.nissan.leafscience.model.vo.SectionVO;
+	import dna.nissan.leafscience.model.vo.SoundVO;
+	import dna.nissan.leafscience.signals.SoundSignal;
+	import dna.nissan.leafscience.signals.SwitchText;
+	import dna.nissan.leafscience.view.components.SectionView;
+	import dna.utils.omniture.OmnitureTrack;
+
+	import org.osflash.statemachine.core.IPayload;
+	import org.osflash.statemachine.core.ISignalState;
+
+	import flash.events.Event;
+
+	/**
+	 * view.mediators.SectionMediator
+	 *
+	 * @author YourName
+	 */
+	public class SectionMediator extends AbstractMediator implements IHasStateTransition, IHasResizeSignal {
+		[Inject(name="state/sectionswf")]
+		public var sectionSWF : ISignalState;
+		[Inject(name="state/sectionvideo")]
+		public var sectionVideo : ISignalState;
+		[Inject]
+		public var view : SectionView;
+		[Inject]
+		public var appModel : AppModel;
+		[Inject]
+		public var soundSignal : SoundSignal;
+		[Inject]
+		public var switchText : SwitchText;
+		[Inject]
+		public var track:OmnitureTrack;
+		[Inject]
+		public var forceDestroy:ForceDestroy;
+		
+
+		override public function onRegister() : void {
+			sectionSWF.entered.add(onSectionEntered);
+			sectionVideo.entered.add(onVideoEntered);
+			resizeSignal.add(onResize);
+			forceDestroy.add(onForceDestroy);
+			view.addEventListener("showAltInfo", onShowAltInfo);
+			view.addEventListener("hideAltInfo", onHideAltInfo);
+			view.addEventListener(SoundEvent.PLAY, onPlaySound);
+			view.addEventListener("trackstart", trackSWF);
+			view.addEventListener("trackreset", trackSWF);
+			view.addEventListener("tracktorque", trackSWF);
+			//view.alpha = .9;
+		}
+		
+		override public function onRemove() : void {
+			sectionSWF.entered.remove(onSectionEntered);
+			sectionVideo.entered.remove(onVideoEntered);
+			resizeSignal.remove(onResize);
+			forceDestroy.remove(onForceDestroy);
+			view.removeEventListener("showAltInfo", onShowAltInfo);
+			view.removeEventListener("hideAltInfo", onHideAltInfo);
+			view.removeEventListener(SoundEvent.PLAY, onPlaySound);
+			view.removeEventListener("trackstart", trackSWF);
+			view.removeEventListener("trackreset", trackSWF);
+			view.removeEventListener("tracktorque", trackSWF);
+		}
+
+		private function onForceDestroy() : void {
+			trace("force destroy in SECTION MED");
+			onRemove();
+			view.destroy();
+		}
+
+		private function trackSWF(e:Event) : void {
+			var vo:OmnitureVO = new OmnitureVO();
+			
+			switch(e.type){
+				case "trackstart":
+					vo.addNissanProperties("sexyscience:performance", "sexyscience-performance-start");
+				break;
+				case "trackreset":
+					vo.addNissanProperties("sexyscience:performance", "sexyscience-performance-reset");
+				break;
+				case "tracktorque":
+					vo.addNissanProperties("sexyscience:performance", "sexyscience-performance-torque");
+				break;
+			}
+			track.dispatch(vo);
+		}
+
+		private function onPlaySound(event : SoundEvent) : void {
+			var vo : SoundVO = new SoundVO();
+			vo.soundName = event.sound;
+			soundSignal.dispatch(vo);
+		}
+
+		private function onHideAltInfo(e : Event) : void {
+			switchText.dispatch(0);
+		}
+
+		private function onShowAltInfo(e : Event) : void {
+			switchText.dispatch(1);
+		}
+
+		private function onVideoEntered(payload : IPayload) : void {
+			// trace("SectionMediator.onVideoEntered(payl	oad)  ");
+			view.destroy();
+		}
+
+		private function onSectionEntered(payload : IPayload) : void {
+			trace("SectionMediator.onSectionEntered(payload)  ");
+			// TODO remove this - used for testing
+			var temp : SectionVO = (appModel.selectedSection) ? appModel.selectedSection : appModel.sections[0] as SectionVO;
+
+			var soundVO : SoundVO = new SoundVO();
+			soundVO.soundName = SoundConstants.SECTION_ENTERED;
+			trace("dispatching menuclose");
+			soundVO.soundVol = .5;
+		//	soundSignal.dispatch(soundVO);
+
+			var vo:OmnitureVO = new OmnitureVO();
+			
+
+			if (temp.id=="sect1"){
+				var rangeSound:SoundVO = new SoundVO();
+				trace("=+++++++++++    SONAR LOOPER +++");
+				
+				rangeSound.soundName = SoundConstants.SONAR;
+				rangeSound.soundVol = .05;
+				rangeSound.loop = 3;
+				soundSignal.dispatch(rangeSound);
+				vo.addNissanProperties("sexyscience:range", "sexyscience-range-home");
+			}else{
+				vo.addNissanProperties("sexyscience:performance", "sexyscience-performance-home");
+				var stopLoopVO:SoundVO = new SoundVO();
+				stopLoopVO.soundName = SoundConstants.STOP;
+				soundSignal.dispatch(stopLoopVO);
+			}
+
+			view.showSection(temp);
+			// Set correct size
+			onResize(fwfService.resizeVO);
+
+			track.dispatch(vo);
+			
+			// Listen for SoundEvents
+			//view.addEventListener(SoundEvent.PLAY, onSoundEvent);
+		}
+
+		private function onSoundEvent(e : SoundEvent) : void {
+			trace("SectionMediator.onSoundEvent(e)");
+			soundSignal.dispatch(e.sound);
+		}
+
+		override public function onResize(resizeVO : ResizeVO) : void {
+			view.x = (resizeVO.width * 0.5) - (1024 * 0.5);
+			view.y = (resizeVO.height * 0.5) - (768 * 0.5);
+		}
+	}
+}

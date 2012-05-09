@@ -1,0 +1,9 @@
+package dna.nissan.leafscience.view.components {
+	import flash.display.Sprite;
+
+	/**
+	 * @author acolling
+	 */
+	public class TitleView extends Sprite {
+	}
+}

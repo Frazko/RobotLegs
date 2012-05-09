@@ -1,0 +1,149 @@
+package dna.nissan.leafscience.view.mediators
+{
+	import flash.utils.getQualifiedClassName;
+
+	import dna.nissan.leafscience.model.constants.SoundConstants;
+	import dna.nissan.leafscience.constants.FSMConstants;
+	import dna.nissan.leafscience.events.SoundEvent;
+	import dna.nissan.leafscience.model.AppModel;
+	import dna.nissan.leafscience.model.vo.ResizeVO;
+	import dna.nissan.leafscience.model.vo.SoundVO;
+	import dna.nissan.leafscience.signals.ForceDestroy;
+	import dna.nissan.leafscience.signals.SoundSignal;
+	import dna.nissan.leafscience.view.components.DisposableNavView;
+
+	import org.osflash.statemachine.core.IPayload;
+	import org.osflash.statemachine.core.ISignalState;
+
+	import flash.events.MouseEvent;
+
+	/**
+	 * @author acolling
+	 */
+	public class DisposableNavViewMediator extends AbstractMediator implements IHasStateTransition, IHasResizeSignal
+	{
+		[Inject]
+		public var view:DisposableNavView;
+		[Inject(name="state/disposablemenu")]
+		public var disposableMenuState:ISignalState;
+		// FIXME need to think about where we place the model e.g. do we initialize views with data first, dispatch the data with rthe next signal, if so how?
+		[Inject]
+		public var model:AppModel;
+		[Inject(name="state/sectionswf")]
+		public var sectionSWF:ISignalState;
+		[Inject]
+		public var soundSignal:SoundSignal;
+		[Inject]
+		public var forceDestroy:ForceDestroy;
+
+		override public function onRegister ():void
+		{
+			forceDestroy.add (onForceDestroy);
+			disposableMenuState.entered.add (onEntered);
+			sectionSWF.entered.add (onShowingSection);
+			resizeSignal.add (onResize);
+		}
+
+		override public function onRemove ():void
+		{
+			forceDestroy.remove (onForceDestroy);
+			disposableMenuState.entered.remove (onEntered);
+			sectionSWF.entered.remove (onShowingSection);
+			resizeSignal.remove (onResize);
+		}
+
+		private function onForceDestroy ():void
+		{
+			trace ("force destroy in SECTION MED");
+			onRemove ();
+			removeListeners ();
+			view.destroy ();
+
+		}
+
+
+		private function onShowingSection (payload:IPayload):void
+		{
+			view.hide ();
+		}
+
+		private function onEntered (payload:IPayload):void
+		{
+			// view.setSections(model.sections);
+			view.show ();
+			addListeners ();
+
+			// Set correct size
+			onResize (fwfService.resizeVO);
+		}
+
+		private function addListeners ():void
+		{
+			// trace ("DisposableNavViewMediator:: [addListeners] view = " + view);
+			view.addEventListener (MouseEvent.CLICK, onMouseClick);
+			view.addEventListener (SoundEvent.PLAY, onSoundRequest);
+		}
+
+		private function removeListeners ():void
+		{
+			view.removeEventListener (MouseEvent.CLICK, onMouseClick);
+			view.removeEventListener (SoundEvent.PLAY, onSoundRequest);
+		}
+
+		private function onSoundRequest (event:SoundEvent):void
+		{
+			var soundVO:SoundVO = new SoundVO ();
+			switch(event.sound)
+			{
+				case "rollover":
+					soundVO.soundName = SoundConstants.HARSH_WUB;
+					break;
+				case "rollout":
+					soundVO.soundName = SoundConstants.ROLL_OVER;
+					break;
+			}
+			soundVO.soundVol = 1;
+			soundSignal.dispatch (soundVO);
+		}
+
+
+		private function onMouseClick (event:MouseEvent):void
+		{
+			
+			trace (String (getQualifiedClassName (event.target)));
+			
+			// FIXME clean up? [...IH: yep it needs it, I've put in a dirty hack to check the classname too ;)]
+			if (getQualifiedClassName (event.target) != "com.nissan.display::IconButtonMC") return;
+			if (!event.target.LabelTextField) return;
+			// dispatch sound signal
+			var vo:SoundVO = new SoundVO ();
+			vo.soundName = SoundConstants.CLICK;
+			vo.soundVol = .3;
+			soundSignal.dispatch (vo);
+			trace ("{}{}{}{}{}[][][[]  clicked:" + event.target.LabelTextField.text);
+			switch(event.target.LabelTextField.text)
+			{
+				case "RANGE":
+					// FIXME not right!
+					fsmController.action (FSMConstants.NEXT, model.sections[0]);
+					break;
+				case "CHARGING":
+					fsmController.action (FSMConstants.NEXT, model.sections[2]);
+					break;
+				case "COST":
+					fsmController.action (FSMConstants.NEXT, model.sections[3]);
+					break;
+				case "PERFORMANCE":
+					fsmController.action (FSMConstants.NEXT, model.sections[1]);
+					break;
+				default:
+			}
+		}
+
+		override public function onResize (resizeVO:ResizeVO):void
+		{
+			view.x = (resizeVO.width * 0.5) - 512;
+			view.y = (resizeVO.height * 0.5) - 384;
+		}
+	}
+}

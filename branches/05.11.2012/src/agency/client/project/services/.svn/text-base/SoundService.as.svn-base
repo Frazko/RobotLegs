@@ -1,0 +1,54 @@
+package dna.nissan.leafscience.model.services {
+	import dna.nissan.leafscience.model.constants.SoundConstants;
+	import dna.nissan.leafscience.model.vo.SoundVO;
+	import org.robotlegs.mvcs.Actor;
+	import dna.nissan.leafscience.signals.SoundSignal;
+	import flash.media.Sound;
+	import com.reintroducing.sound.SoundManager;
+
+	/**
+	 * model.services.SoundService
+	 *
+	 * @author YourName
+	 */
+	public class SoundService extends Actor {
+		private var _soundManager : SoundManager;
+		[Inject]
+		public var soundSignal:SoundSignal;
+		
+		public function SoundService():void {
+			_soundManager = SoundManager.getInstance();
+		}
+		
+		[PostConstruct]
+		public function init() : void {
+			soundSignal.add(playSound);
+		}
+		
+		public function addPreloadedSound(sound:Sound, name:String) : void {
+			_soundManager.addPreloadedSound(sound, name);
+		}
+		
+		public function playSound(vo:SoundVO) : void {
+			
+			if (vo.soundName.indexOf(SoundConstants.POWER)==0){
+				vo.soundVol = .3;
+			}
+			if (vo.soundName.indexOf(SoundConstants.SELECTOR)==0){
+				vo.soundVol = .3;
+			}
+			
+			if (vo.soundName==SoundConstants.STOP){
+				trace("stopping sonar");
+				_soundManager.stopSound(SoundConstants.SONAR);//todo update in case we want other sounds				
+			}else{
+				_soundManager.playSound(vo.soundName, vo.soundVol, 0, vo.loop);
+			}
+		}
+
+		public function destroy() : void {
+			
+			_soundManager.stopAllSounds();
+		}
+	}
+}

@@ -1,0 +1,30 @@
+package dna.nissan.leafscience.view.mediators {
+	import org.osflash.statemachine.core.ISignalState;
+	import dna.nissan.leafscience.view.components.TestView;
+
+	import com.demonsters.debugger.MonsterDebugger;
+
+	import org.osflash.statemachine.core.IFSMController;
+	import org.osflash.statemachine.core.IPayload;
+	import org.robotlegs.mvcs.Mediator;
+
+	public class TestMediator extends Mediator {
+		[Inject]
+		public var view : TestView;
+		
+		[Inject]
+		public var fsmController : IFSMController;
+		
+		[Inject(name="state/mainmenu")]
+		public var state : ISignalState;
+
+		override public function onRegister() : void {
+			MonsterDebugger.trace(this, "TestMediator.onRegister()");
+			state.entered.add(onStateEntered);
+		}
+		
+		private function onStateEntered(data : IPayload) : void {
+			MonsterDebugger.trace(this,"TestMediator.onStateEntered(data)");
+		}
+	}
+}

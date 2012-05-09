@@ -1,0 +1,14 @@
+package dna.nissan.leafscience.signals {
+	import dna.nissan.leafscience.model.vo.ProgressVO;
+	import org.osflash.signals.Signal;
+
+	/**
+	 * @author acolling
+	 */
+	public class ProgressSignal extends Signal {
+		public function ProgressSignal() {
+			super(ProgressVO);
+		}
+		
+	}
+}

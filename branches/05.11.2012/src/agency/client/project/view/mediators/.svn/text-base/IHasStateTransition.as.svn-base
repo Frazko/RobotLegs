@@ -1,0 +1,7 @@
+package dna.nissan.leafscience.view.mediators {
+	import dna.nissan.leafscience.model.vo.SectionVO;
+	public interface IHasStateTransition {
+		 function transitionIn():void;
+		 function transitionOut(sectionVO:SectionVO):void;
+	}
+}

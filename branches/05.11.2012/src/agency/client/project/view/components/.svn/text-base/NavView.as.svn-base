@@ -1,0 +1,76 @@
+// // ////////////////////////////////////////////////////////////////////////////
+// Code stub generated with:
+// Crocus Modeller
+// Robust UML editor for AS3 & Flex devs.
+// http://CrocusModeller.com
+//
+// // ////////////////////////////////////////////////////////////////////////////
+package dna.nissan.leafscience.view.components {
+	import flash.display.MovieClip;
+	import com.greensock.loading.LoaderMax;
+	import com.greensock.loading.SWFLoader;
+	import com.greensock.TweenLite;
+	import flash.events.MouseEvent;
+
+	import dna.nissan.leafscience.model.constants.DisplayConstants;
+	import dna.nissan.leafscience.model.vo.SectionVO;
+
+	import graphics.Drawing;
+
+	import flash.display.Shape;
+	import flash.display.Sprite;
+
+	/**
+	 * view.components.NavView
+	 *
+	 * @author YourName
+	 */
+	public class NavView extends Sprite implements INav {
+		private var _holder : Sprite;
+		private var _sections : Array;
+		public var _movieclip : MovieClip;
+	
+
+		public function init() : void {
+			// var bg : Shape = Drawing.drawBox(DisplayConstants.STAGE_WIDTH, DisplayConstants.STAGE_HEIGHT, DisplayConstants.COLOR_NAVY);
+			// addChild(bg);
+			var swfLoader:SWFLoader = LoaderMax.getLoader("navSWF") as SWFLoader;
+			_movieclip = swfLoader.content.rawContent;
+			addChild(_movieclip);
+			
+		//	_movieclip.initialise();
+		//	this.alpha = 0;
+		//	this.visible = false;
+			visible = false;
+		}
+		
+		public function setData(sections : Array) : void {
+			_sections = sections;
+			init();
+		}
+		
+
+		public function showSection(id : String) : void {
+		}
+
+		public function pause() : void {
+			//TODO call on SWF
+		}
+
+		public function destroy() : void {
+			
+			//TODO call on SWF
+		}
+
+		public function show() : void {
+			_movieclip.openMenu();
+			visible = true;
+		}
+
+		public function hide() : void {
+			_movieclip.closeMenu();
+			visible = false;
+		}
+
+	}
+}

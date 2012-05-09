@@ -1,0 +1,180 @@
+package dna.nissan.leafscience.view.mediators {
+	import dna.nissan.leafscience.model.services.SoundService;
+	import dna.nissan.leafscience.constants.FSMConstants;
+	import dna.nissan.leafscience.model.constants.DisplayConstants;
+	import dna.nissan.leafscience.model.vo.ResizeVO;
+	import dna.nissan.leafscience.signals.ForceDestroy;
+	import dna.nissan.leafscience.view.components.CustomContainer;
+	import dna.nissan.leafscience.view.components.DisclaimerView;
+	import dna.nissan.leafscience.view.components.DisposableNavView;
+	import dna.nissan.leafscience.view.components.FooterView;
+	import dna.nissan.leafscience.view.components.InfoView;
+	import dna.nissan.leafscience.view.components.NavView;
+	import dna.nissan.leafscience.view.components.PreLoaderMC;
+	import dna.nissan.leafscience.view.components.SectionView;
+	import dna.nissan.leafscience.view.components.TitleView;
+	import dna.nissan.leafscience.view.components.VideoView;
+	import dna.utils.omniture.OmnitureTrack;
+	import dna.utils.omniture.OmnitureVO;
+
+	import graphics.Drawing;
+
+	import com.nissan.fwf.api.NissanAPI;
+
+	import org.osflash.statemachine.core.IPayload;
+	import org.osflash.statemachine.core.ISignalState;
+
+	import flash.display.CapsStyle;
+	import flash.display.DisplayObjectContainer;
+	import flash.display.Shape;
+	import flash.display.Sprite;
+	import flash.events.Event;
+	import flash.events.MouseEvent;
+	import flash.filters.BlurFilter;
+
+	/**
+	 * @author acolling
+	 */
+	public class StageMediator extends AbstractMediator implements IHasStateTransition, IHasResizeSignal {
+		[Inject]
+		public var view : DisplayObjectContainer;
+		[Inject(name="state/initialloadingcomplete")]
+		public var state : ISignalState;
+		[Inject(name="state/loading")]
+		public var startup : ISignalState;
+		private var _background : Sprite;
+		private var _feather : Sprite;
+		[Inject(name="state/sectionswf")]
+		public var sectionSWF : ISignalState;
+		[Inject]
+		public var track:OmnitureTrack;
+		[Inject]
+		public var forceDestroy:ForceDestroy;
+		[Inject]
+		public var soundService:SoundService;
+		
+		
+		private var _close : Sprite;
+		private var _preloader : PreLoaderMC;
+		private var _leftBlocker : Shape;
+		private var _rightBlocker : Shape;
+
+		override public function onRegister() : void {
+			trace("StageMediator.onRegister()  ");
+			addPreloader();
+			startup.entered.addOnce(onStartup);
+			state.entered.add(onInitialLoadingComplete);
+			fsmController.addChangedListener(onStateChanged);
+			view.addEventListener(CustomContainer.DESTROY, onDestroy, false, 0, true);
+		}
+
+		private function onDestroy(event : Event) : void {
+			soundService.destroy();
+			forceDestroy.dispatch();
+		}
+
+		private function addPreloader() : void {
+			trace("------------     StageMediator.addPreloader()  ");
+			trace("view:" + view);
+			_preloader = new PreLoaderMC();
+			view.addChild(_preloader);
+		}
+
+		private function onStartup(payload:IPayload) : void {
+			trace("StageMediator.onStartup(payload)  ");
+			//view.addChild(new PreloaderView());
+			
+		}
+
+		private function onInitialLoadingComplete(payload : IPayload) : void {
+			trace("StageMediator.onInitialLoadingComplete(payload)");
+			//return;
+			_background = new Sprite();
+			_background.graphics.beginFill(0x000a14);
+			_background.graphics.drawRect(0, 0, fwfService.width, fwfService.height);
+			_background.graphics.endFill();
+			trace("w:"+fwfService.width+"  h:"+fwfService.height);
+			view.addChild(_background);
+			
+			view.addChild(new DisposableNavView());
+			view.addChild(new SectionView());
+			view.addChild(new VideoView());
+
+			var myBlur : BlurFilter = new BlurFilter(20, 20, 100);
+			_feather = new Sprite();
+			_feather.graphics.lineStyle(80, 0x000a14, 1, true, "normal", CapsStyle.ROUND);
+			_feather.graphics.drawRect(0, 0, 1024, 768);
+			_feather.graphics.endFill();
+			_feather.filters = [myBlur];
+			view.addChild(_feather);
+			
+			_leftBlocker = Drawing.drawBox(500, DisplayConstants.STAGE_HEIGHT, 0x000a14);
+			_leftBlocker.x = -500;
+			_feather.addChild(_leftBlocker);
+			_rightBlocker = Drawing.drawBox(500, DisplayConstants.STAGE_HEIGHT, 0x000a14);
+			_rightBlocker.x = 1024;
+			_feather.addChild(_rightBlocker);
+			
+
+			view.addChild(new TitleView());
+			view.addChild(new InfoView());
+			view.addChild(new NavView());
+			view.addChild(new FooterView());
+			view.addChild(new DisclaimerView());
+			
+			_close = new Sprite();
+			_close.graphics.beginFill(0x000000,0.5);
+			_close.graphics.lineStyle(1,0x33414b,1,true);
+			_close.graphics.drawCircle(0, 0, 50);
+			_close.graphics.endFill();
+			_close.graphics.lineStyle(1,0xFFFFFF,1,true);
+			_close.graphics.moveTo(-22, 15);
+			_close.graphics.lineTo(-10, 27);
+			_close.graphics.moveTo(-22, 27);
+			_close.graphics.lineTo(-10, 15);
+			_close.buttonMode = true;
+			view.addChild(_close);
+			
+			_close.addEventListener(MouseEvent.CLICK, onClose);
+
+			resizeSignal.add(onResize);
+			onResize(fwfService.resizeVO);
+			
+			view.setChildIndex(_preloader, view.numChildren-1);
+
+			fsmController.action(FSMConstants.NEXT);
+			
+			var vo:OmnitureVO = new OmnitureVO();
+			vo.addNissanProperties("", "sexyscience-home");
+			track.dispatch(vo);
+		}
+
+		private function onClose(e:MouseEvent) : void {
+			trace("StageMediator.onClose(e)");
+			trace(NissanAPI.getLink(fwfService.system.getConfiguration().getDatas("back").link[0]));
+			//System requires the back to explicitly left in this xml location....
+			NissanAPI.getLink(fwfService.system.getConfiguration().getDatas("back").link[0]).navigate();
+		}
+
+		private function onStateChanged(state : *) : void {
+			// trace("StageMediator.onStateChanged(state) " +  fsmController.currentStateName);
+		}
+		
+		private function onSectionEntered(payload : IPayload) : void {
+		}
+		
+		private function onSectionTearDown() : void {
+		}
+
+		override public function onResize(resizeVO : ResizeVO) : void {
+			_background.width = resizeVO.width;
+			_background.height = resizeVO.height;
+			
+			_feather.x = ( fwfService.width * 0.5 ) - 512;
+			_feather.y = (fwfService.height * 0.5 ) - 384;
+			
+			_close.x = resizeVO.width - (_close.width * 0.075);
+			_close.y = 0;
+		}
+	}
+}

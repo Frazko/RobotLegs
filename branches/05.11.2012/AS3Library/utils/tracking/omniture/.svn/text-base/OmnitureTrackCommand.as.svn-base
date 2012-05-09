@@ -1,0 +1,15 @@
+package com.digitas.utils.tracking.omniture {
+	import org.osflash.thunderbolt.Logger;
+	import org.robotlegs.mvcs.SignalCommand;
+	
+	public class OmnitureTrackCommand extends SignalCommand {
+		[Inject]
+		public var omniture : Omniture;
+		[Inject]
+		public var omnitureVO : OmnitureVO;
+
+		override public function execute() : void {
+			omniture.track(omnitureVO);
+		}
+	}
+}

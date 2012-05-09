@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<library name="MyFonts" output="src/agency/client/project" format="2" static="false">
+	<font id="Verdana" family="Arial" style="0" cs="5" type="1" path="../../../../fonts/Verdana.ttf" ascff="false" autoId="false"/>
+</library>

@@ -1,0 +1,99 @@
+package dna.nissan.leafscience.view.components
+{
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+
+	import dna.nissan.leafscience.model.vo.SectionVO;
+
+	import com.greensock.loading.LoaderMax;
+	import com.greensock.loading.SWFLoader;
+
+	import flash.display.MovieClip;
+	import flash.display.Sprite;
+	import flash.net.LocalConnection;
+
+	public class SectionView extends Sprite implements IView
+	{
+		private var _iView:IView;
+		private var _movieClip:*;
+		private var masker:Sprite;
+
+		public function setMC (swfLoader:SWFLoader):void
+		{
+			_movieClip = swfLoader.content;
+		}
+
+		public function showSection (vo:SectionVO):void
+		{
+			trace ("SectionView.showSection()");
+			if (_movieClip)
+			{
+				destroy ();
+				// return;
+				trace ("====clip removed from memory=====");
+			}
+			var swfLoader:SWFLoader = LoaderMax.getLoader (vo.swfID) as SWFLoader;
+			_movieClip = swfLoader.rawContent;
+
+			addChild (_movieClip);
+			var showDelayTimer:Timer = new Timer (1000, 1);
+			showDelayTimer.addEventListener (TimerEvent.TIMER, showDelayTimerCompleteHandler);
+			showDelayTimer.start ();
+			// show();
+		}
+
+		private function showDelayTimerCompleteHandler (event:TimerEvent):void
+		{
+			var timer:Timer = event.currentTarget as Timer;
+			timer.removeEventListener (TimerEvent.TIMER, showDelayTimerCompleteHandler);
+			timer = null;
+			
+			show ();
+		}
+
+		public function createMask ():void
+		{
+			masker = new Sprite ();
+			masker.graphics.drawRect (0, 0, 1024, 768);
+			addChild (masker);
+			_movieClip.mask = masker;
+		}
+
+		public function pause ():void
+		{
+			// TODO
+		}
+
+		public function destroy ():void
+		{
+			if (masker)
+			{
+				removeChild (masker);
+				masker = null;
+			}
+			if (_movieClip) _movieClip.destroy ();
+			removeChild (_movieClip);
+			_movieClip = null;
+			// FORCE GARBAGE COLLECT
+			try
+			{
+				new LocalConnection ().connect ('foo');
+				new LocalConnection ().connect ('foo');
+			}
+			catch (e:* )
+			{
+			}
+		}
+
+		public function show ():void
+		{
+			trace ("SectionView.show()  ----------");
+			_movieClip.initDisplay ();
+			_movieClip.show ();
+		}
+
+		public function hide ():void
+		{
+		}
+	}
+}

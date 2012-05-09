@@ -1,0 +1,153 @@
+package dna.nissan.leafscience.view.mediators {
+	import dna.nissan.leafscience.model.AppModel;
+	import dna.nissan.leafscience.model.vo.InfoVO;
+	import dna.nissan.leafscience.model.vo.ResizeVO;
+	import dna.nissan.leafscience.model.vo.SectionVO;
+	import dna.nissan.leafscience.signals.ForceDestroy;
+	import dna.nissan.leafscience.signals.SwitchText;
+	import dna.nissan.leafscience.view.components.InfoView;
+	import dna.utils.omniture.OmnitureTrack;
+	import dna.utils.omniture.OmnitureVO;
+
+	import com.nissan.fwf.api.ISystem;
+	import com.nissan.fwf.api.NissanAPI;
+	import com.nissan.fwf.api.tools.ILink;
+
+	import org.osflash.statemachine.core.IPayload;
+	import org.osflash.statemachine.core.ISignalState;
+
+	import flash.events.Event;
+	import flash.events.MouseEvent;
+
+	/**
+	 * @author acolling
+	 */
+	public class InfoViewMediator extends AbstractMediator {
+		[Inject]
+		public var view : InfoView;
+		[Inject(name="state/sectionswf")]
+		public var sectionSWF : ISignalState;
+		[Inject(name="state/sectionvideo")]
+		public var sectionVideo : ISignalState;
+		[Inject]
+		public var appModel : AppModel;
+		[Inject(name="state/disposablemenu")]
+		public var disposableMenuState : ISignalState;
+		[Inject]
+		public var switchText : SwitchText;
+		[Inject]
+		public var track : OmnitureTrack;
+		[Inject]
+		public var forceDestroy : ForceDestroy;
+		[Inject]
+		public var system : ISystem;
+
+		override public function onRegister() : void {
+			forceDestroy.add(onForceDestroy);
+			sectionSWF.entered.add(onSectionEntered);
+			sectionVideo.entered.add(onSectionVideoEntered);
+			resizeSignal.add(onResize);
+			switchText.add(onSwitchText);
+			view.addEventListener("showVideo", onShowVideo);
+			view.facebook.addEventListener(MouseEvent.CLICK, onFacebook);
+			view.twitter.addEventListener(MouseEvent.CLICK, onTwitter);
+			view.system = system;
+		}
+
+		override public function onRemove() : void {
+			forceDestroy.remove(onForceDestroy);
+			sectionSWF.entered.remove(onSectionEntered);
+			sectionVideo.entered.remove(onSectionVideoEntered);
+			resizeSignal.remove(onResize);
+			switchText.remove(onSwitchText);
+			view.removeEventListener("showVideo", onShowVideo)
+			view.facebook.removeEventListener(MouseEvent.CLICK, onFacebook);
+			view.twitter.removeEventListener(MouseEvent.CLICK, onTwitter);
+		}
+
+		private function onForceDestroy() : void {
+			trace("force destroy in SECTION MED");
+			onRemove();
+			view.destroy();
+		}
+
+		private function onTwitter(event : MouseEvent) : void {
+			var xml : XMLList = system.getConfiguration().getDatas("fwf_author_config").link.(@id == "twitter");
+			var linkObject : ILink = NissanAPI.getLink(xml[0]);
+			linkObject.navigate();
+			var vo : OmnitureVO = new OmnitureVO();
+			if (appModel.selectedSection.id == "sect1") {
+				vo.addNissanProperties("sexyscience:range", "sexyscience-range-twitter");
+			} else if (appModel.selectedSection.id == "sect2") {
+				vo.addNissanProperties("sexyscience:performance", "sexyscience-performance-twitter");
+			} else if (appModel.selectedSection.id == "sect3") {
+				vo.addNissanProperties("sexyscience:charge", "sexyscience-charge-twitter");
+			} else if (appModel.selectedSection.id == "sect4") {
+				vo.addNissanProperties("sexyscience:cost", "sexyscience-cost-twitter");
+			}
+			track.dispatch(vo);
+		}
+
+		private function onFacebook(event : MouseEvent) : void {
+			var xml : XMLList = system.getConfiguration().getDatas("fwf_author_config").link.(@id == "facebook");
+			var linkObject : ILink = NissanAPI.getLink(xml[0]);
+			linkObject.navigate();
+			var vo : OmnitureVO = new OmnitureVO();
+			if (appModel.selectedSection.id == "sect1") {
+				vo.addNissanProperties("sexyscience:range", "sexyscience-range-facebook");
+			} else if (appModel.selectedSection.id == "sect2") {
+				vo.addNissanProperties("sexyscience:performance", "sexyscience-performance-facebook");
+			} else if (appModel.selectedSection.id == "sect3") {
+				vo.addNissanProperties("sexyscience:charge", "sexyscience-charge-facebook");
+			} else if (appModel.selectedSection.id == "sect4") {
+				vo.addNissanProperties("sexyscience:cost", "sexyscience-cost-facebook");
+			}
+			track.dispatch(vo);
+		}
+
+		private function onShowVideo(e : Event) : void {
+			trace("InfoViewMediator.onShowVideo(e)  >>>>>>>>");
+			var vo : OmnitureVO = new OmnitureVO();
+			if (appModel.selectedSection.id == "sect1") {
+				vo.addNissanProperties("sexyscience:range", "sexyscience-range-videoreview");
+			} else if (appModel.selectedSection.id == "sect2") {
+				vo.addNissanProperties("sexyscience:performance", "sexyscience-performance-videoreview");
+			} else if (appModel.selectedSection.id == "sect3") {
+				vo.addNissanProperties("sexyscience:charge", "sexyscience-charge-videoreview");
+			} else if (appModel.selectedSection.id == "sect4") {
+				vo.addNissanProperties("sexyscience:cost", "sexyscience-cost-videoreview");
+			}
+			track.dispatch(vo);
+		}
+
+		private function onSwitchText(n : uint) : void {
+			(n == 1) ? view.showAltText(true) : view.showAltText(false);
+		}
+
+		private function onSectionVideoEntered(payload : IPayload) : void {
+			trace("VideoMediator.onSectionVideoEntered(payload)");
+			view.hide();
+		}
+
+		private function onSectionEntered(payload : IPayload) : void {
+			// trace("SectionMediator.onSectionEntered(payload)  ");
+			var sectionVO : SectionVO = appModel.selectedSection;
+			if (!sectionVO) sectionVO = appModel.sections[0] as SectionVO;
+			var infoVO : InfoVO = sectionVO.infoVO;
+			// TODO remove- only used for testing
+
+			view.setup(infoVO);
+			onResize(fwfService.resizeVO);
+			view.show();
+		}
+
+		override public function onResize(resizeVO : ResizeVO) : void {
+			view.x = resizeVO.width * .7;
+			view.y = resizeVO.height * .07;
+			// var globalP : Point = new Point(resizeVO.height - 100, 10);
+			// var newP : Point = view.disclaimer.globalToLocal(globalP);
+			// view.disclaimer.x = 200; 
+			// view.disclaimer.y = resizeVO.height-view.y;
+		}
+	}
+}

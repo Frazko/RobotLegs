@@ -1,0 +1,22 @@
+package dna.nissan.leafscience.controller {
+	import dna.nissan.leafscience.model.vo.SoundVO;
+	import dna.nissan.leafscience.model.services.SoundService;
+
+	import org.robotlegs.mvcs.SignalCommand;
+
+	/**
+	 * @author acolling
+	 */
+	public class SoundCommand extends SignalCommand {
+		[Inject]
+		public var soundService : SoundService;
+		[Inject]
+		public var vo : SoundVO;
+
+		override public function execute() : void {
+			trace("SoundCommand.execute()  ----------------+++++++++++++");
+			//soundService.playSound("rollover", 1);
+			
+		}
+	}
+}

@@ -1,0 +1,22 @@
+package dna.nissan.leafscience.model.services {
+	import com.nissan.fwf.api.ISystem;
+
+	import org.robotlegs.mvcs.Actor;
+
+	/**
+	 * model.services.TrackingService
+	 *
+	 * @author YourName
+	 */
+	public class TrackingService extends Actor {
+		[Inject]
+		public var system : ISystem;
+		
+		public function TrackingService():void {
+		}
+		
+		public function track(val:String, id:String):void {
+		}
+
+	}
+}

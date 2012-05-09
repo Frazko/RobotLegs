@@ -1,0 +1,12 @@
+package dna.nissan.leafscience.signals {
+	import org.osflash.signals.Signal;
+
+	/**
+	 * @author acolling
+	 */
+	public class SwitchText extends Signal {
+		public function SwitchText() {
+			super(uint);
+		}
+	}
+}

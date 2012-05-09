@@ -1,0 +1,55 @@
+package dna.nissan.leafscience.view.components {
+	import dna.nissan.leafscience.model.vo.SectionVO;
+
+	import graphics.Drawing;
+
+	import utils.TextFieldUtils;
+
+	import flash.display.Shape;
+	import flash.display.Sprite;
+	import flash.text.TextField;
+	import flash.text.TextFormat;
+
+	/**
+	 * @author acolling
+	 */
+	public class CustomButton extends Sprite {
+		private var _title : String;
+		private var _textField : TextField;
+		private var _format : TextFormat;
+		private var _thisCol : Number;
+		public var vo : SectionVO;
+		private var _themeCol : uint;
+		
+		
+		
+		public function CustomButton(sVo:SectionVO, col:uint = 0xffffff) {
+			_themeCol = col;
+			vo = sVo;
+			_title = vo.title;
+			mouseEnabled = true;
+			mouseChildren = false;
+			buttonMode = true;
+			useHandCursor = true;
+			initDisplay();
+			
+		}
+
+		private function initDisplay() : void {
+			
+			_thisCol = Math.random()*0xffffff;
+			_format = TextFieldUtils.createTextFormat("Arial", _thisCol, 24);
+			
+			_textField =  TextFieldUtils.createTextField();
+			_textField.embedFonts = false;
+			_textField.defaultTextFormat = _format;
+			_textField.htmlText = _title;
+			addChild(_textField);
+			
+			var box:Shape = Drawing.drawBox(_textField.width, _textField.height, 0xffffff, 1, 1, _thisCol, 1);
+			addChildAt(box, 0);
+			
+			
+		}
+	}
+}

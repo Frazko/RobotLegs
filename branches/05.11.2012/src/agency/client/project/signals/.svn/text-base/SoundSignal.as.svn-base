@@ -1,0 +1,13 @@
+package dna.nissan.leafscience.signals {
+	import dna.nissan.leafscience.model.vo.SoundVO;
+	import org.osflash.signals.Signal;
+
+	/**
+	 * @author Karl Freeman 2011 (c) karlfreeman.co.uk
+	 */
+	public class SoundSignal extends Signal {
+		public function SoundSignal() {
+			super(SoundVO);
+		}
+	}
+}

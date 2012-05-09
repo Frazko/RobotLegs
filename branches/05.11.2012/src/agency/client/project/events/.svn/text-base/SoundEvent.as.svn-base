@@ -1,0 +1,20 @@
+package dna.nissan.leafscience.events {
+	import flash.events.Event;
+
+	/**
+	 * @author Karl Freeman 2011 (c) karlfreeman.co.uk
+	 */
+	public class SoundEvent extends Event {
+		public static const PLAY: String = "play";
+		private var _sound : String;
+
+		public function SoundEvent(type : String, sound : String) {
+			_sound = sound;
+			super(type, true, false);
+		}
+
+		public function get sound() : String {
+			return _sound;
+		}
+	}
+}

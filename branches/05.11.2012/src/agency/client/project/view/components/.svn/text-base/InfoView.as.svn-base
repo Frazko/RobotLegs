@@ -1,0 +1,471 @@
+package dna.nissan.leafscience.view.components
+{
+	import dna.nissan.leafscience.model.constants.DisplayConstants;
+	import dna.nissan.leafscience.model.vo.InfoVO;
+	import dna.nissan.leafscience.model.vo.PanelVO;
+
+	import graphics.Drawing;
+
+	import utils.Utils;
+
+	import com.greensock.TweenMax;
+	import com.greensock.loading.CSSLoader;
+	import com.greensock.loading.ImageLoader;
+	import com.greensock.loading.LoaderMax;
+	import com.greensock.loading.VideoLoader;
+	import com.nissan.fwf.api.ISystem;
+	import com.nissan.fwf.api.NissanAPI;
+	import com.nissan.fwf.api.tools.ILink;
+
+	import flash.display.DisplayObject;
+	import flash.display.Shape;
+	import flash.display.Sprite;
+	import flash.events.Event;
+	import flash.events.MouseEvent;
+	import flash.geom.Point;
+	import flash.text.AntiAliasType;
+	import flash.text.Font;
+	import flash.text.StyleSheet;
+	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
+
+	/**
+	 * @author acolling
+	 */
+	public class InfoView extends Sprite implements IView
+	{
+		private static const SOCIAL_MEDIA_ICON_SPACING:uint = 2;
+		private static const SOCIAL_MEDIA_ICON_MARGIN_TOP:uint = 30;
+		private static const SOCIAL_MEDIA_ICON_MARGIN_RIGHT:uint = 20;
+		
+		public var disclaimer:Sprite;
+		public var system:ISystem;
+		public var facebook:Sprite = new Sprite ();
+		public var twitter:Sprite = new Sprite ();
+		
+		private var _holder:Sprite;
+		private var _vidLoader:VideoLoader;
+		private var nissanVideoPlayer:NissanVideoPlayer;
+		private var _vo:InfoVO;
+		private var _showingVideo:Boolean;
+		private var _mainOutline:Shape;
+		private var _diff:Number;
+
+
+		private function setupIcons ():void
+		{
+
+			facebook = new Sprite ();
+			var fbook:ImageLoader = LoaderMax.getLoader ("fbook") as ImageLoader;
+			var img:* = fbook.rawContent;
+			facebook.addChild (img);
+
+			twitter = new Sprite ();
+			var twitterLoader:ImageLoader = LoaderMax.getLoader ("twitter") as ImageLoader;
+			var twitImg:* = twitterLoader.rawContent;
+			twitter.addChild (twitImg);
+
+			addChild (twitter);
+			addChild (facebook);
+
+
+			Utils.makeButton (twitter);
+			Utils.makeButton (facebook);
+		}
+
+
+		// private var rolloverBG : Shape;
+		// can only have 1 video per panelview at the moment, could be expanded
+		public function setup (vo:InfoVO):void
+		{
+			destroy();
+			
+			if (!facebook.parent)
+			{
+				setupIcons ();
+			}
+			_showingVideo = false;
+			_holder = new Sprite ();
+			addChild (_holder);
+			_vo = vo;
+			for (var i:int = 0; i < vo.panels.length; i++)
+			{
+				var panel:PanelVO = vo.panels[i] as PanelVO;
+				addPanel (panel, (i == vo.panels.length - 1));
+			}
+			// add outline
+			_mainOutline = Drawing.drawBox (DisplayConstants.INFO_PANEL_WIDTH, _holder.height, 0xff0000, 0, 1, 0xffffff, DisplayConstants.LINE_ALPHA);
+
+			/*
+			// add disclaimers
+			if (_vo.id == "sect1") {
+			disclaimer = new Sprite();
+			var textField : TextField = new TextField();
+			textField.styleSheet = styleSheet;
+			textField.embedFonts = true;
+			textField.multiline = true;
+			textField.wordWrap = true;
+			textField.autoSize = TextFieldAutoSize.LEFT;
+			textField.width = DisplayConstants.INFO_PANEL_WIDTH - (2 * DisplayConstants.INFO_PANEL_PADDING);
+			textField.antiAliasType = AntiAliasType.ADVANCED;
+			textField.htmlText = '"<p class="whiteDisclaimer">*Dependent on driving conditions.<br>Average distances provided by the National Travel Survey</p>"';
+			textField.x = DisplayConstants.INFO_PANEL_PADDING;
+			textField.y = DisplayConstants.INFO_PANEL_PADDING;
+			// disc1.textField = textField;
+			disclaimer.addChild(textField);
+			disclaimer.y = _holder.height+40;
+			disclaimer.alpha = .5;
+			addChild(disclaimer);
+			}*/
+			_holder.addChild (_mainOutline);
+
+			visible = false;
+			alpha = 0;
+		}
+
+		private function addPanel (panel:PanelVO, isFinal:Boolean):void
+		{
+			var holder:PanelView = new PanelView ();
+			holder.vo = panel;
+
+			var hasRollover:Boolean = false;
+
+			if (panel.copy.indexOf ("Book") > -1 || panel.copy.indexOf ("Video review") == 0)
+			{
+				// make a rollover
+				hasRollover = true;
+			}
+
+			if (panel.videoID)
+			{
+				// is a video panel
+				_vidLoader = LoaderMax.getLoader (panel.videoID) as VideoLoader;
+				nissanVideoPlayer = new NissanVideoPlayer (_vidLoader);
+				nissanVideoPlayer.y = _holder.height;
+				holder.addChild (nissanVideoPlayer);
+			}
+			else
+			{
+				// is a text panel
+				var cssLoader:CSSLoader = LoaderMax.getLoader ("global-css") as CSSLoader;
+				var styleSheet:StyleSheet = cssLoader.content as StyleSheet;
+				// styleSheet
+				// var textField : TextField = TextFieldUtils.createTextField(true, false, DisplayConstants.INFO_PANEL_WIDTH, 500);
+				var textField:TextField = new TextField ();
+				textField.styleSheet = styleSheet;
+				textField.embedFonts = true;
+				textField.multiline = true;
+				textField.wordWrap = true;
+				textField.autoSize = TextFieldAutoSize.LEFT;
+				textField.width = DisplayConstants.INFO_PANEL_WIDTH - (2 * DisplayConstants.INFO_PANEL_PADDING);
+				textField.antiAliasType = AntiAliasType.ADVANCED;
+				textField.htmlText = panel.copy;
+				textField.borderColor = 0xff00ff;
+				// textField.border = true;
+				textField.x = DisplayConstants.INFO_PANEL_PADDING;
+				textField.y = DisplayConstants.INFO_PANEL_PADDING;
+
+				var outline:Shape = Drawing.drawBox (DisplayConstants.INFO_PANEL_WIDTH, textField.height + (DisplayConstants.INFO_PANEL_PADDING * 2), 0x0);
+				outline.alpha = 0;
+
+				var line:Shape = Drawing.drawLine (new Point (DisplayConstants.INFO_PANEL_WIDTH, 0), 1, 0x5797c2);
+				line.y = textField.height + (2 * DisplayConstants.INFO_PANEL_PADDING);
+				holder.line = line;
+
+				line.alpha = (isFinal) ? 0 : DisplayConstants.LINE_ALPHA;
+				var rolloverBG:Shape = Drawing.drawBox (DisplayConstants.INFO_PANEL_WIDTH, line.y + 1, 0x5797c2);
+				rolloverBG.alpha = 0;
+
+				holder.rolloverBG = rolloverBG;
+				holder.hasRollover = hasRollover;
+				holder.addChild (rolloverBG);
+				holder.addChild (line);
+				holder.addChild (outline);
+
+				// if is a video button
+				if (panel.isVideoButton)
+				{
+					makeVideoButton (holder);
+				}
+
+				holder.textField = textField;
+
+				var a:Array = Font.enumerateFonts ();
+				if (panel.extLink)
+				{
+					// has an external link build button and add yellow arrow
+				}
+				holder.y = _holder.height;
+				holder.addChild (textField);
+			}
+			// add bg
+
+			if (hasRollover && panel.isVideoButton == false)
+			{
+				holder.mouseChildren = false;
+				holder.buttonMode = true;
+				holder.addEventListener (MouseEvent.ROLL_OVER, overPanel);
+				holder.addEventListener (MouseEvent.ROLL_OUT, outPanel);
+				holder.addEventListener (MouseEvent.CLICK, panelClick);
+			}
+
+			if (hasRollover || panel.isVideoButton)
+			{
+				var triangle:Shape = getTriangle ();
+				triangle.x = holder.textField.textWidth + 22;
+				triangle.y = 18;
+				holder.addChild (triangle);
+			}
+			// if book a tdrive
+			// todo -fix if time this is messy:
+			// if (panel.copy.indexOf("Book") > -1){
+			// holder.addEventListener(type, listener)
+			// }
+
+			_holder.addChild (holder);
+			positionIcons ();
+		}
+
+		private function positionIcons ():void
+		{
+			twitter.x = _holder.x + _holder.width - twitter.width - SOCIAL_MEDIA_ICON_MARGIN_RIGHT;
+			twitter.y = _holder.y + _holder.height + SOCIAL_MEDIA_ICON_MARGIN_TOP;
+			facebook.x = twitter.x - facebook.width - SOCIAL_MEDIA_ICON_SPACING;
+			facebook.y = twitter.y;
+
+		}
+
+
+		private function getTriangle ():Shape
+		{
+			var triHeight:uint = 9;
+			var triWidth:uint = 5;
+			var p1:Point = new Point (0, 0);
+			var p2:Point = new Point (triWidth, triHeight * .5);
+			var p3:Point = new Point (0, triHeight);
+			var s:Shape = Drawing.drawTriangle (p1, p2, p3, false, 0xffff00, 1);
+			return s;
+		}
+
+		private function getXML (type:String, url:String):XML
+		{
+			// var type : String = "ext";
+			// var url : String = "http://www.google.com";
+			return 	<link type={type}>
+						<src>{url}</src>
+					</link>;
+		}
+
+		private function panelClick (event:MouseEvent):void
+		{
+			// book a test drive
+			var xml:XMLList = system.getConfiguration ().getDatas ("fwf_author_config").link.(@id == "testdrive");
+			var linkObject:ILink = NissanAPI.getLink (xml[0]);
+			linkObject.navigate ();
+		}
+
+		private function outPanel (event:MouseEvent):void
+		{
+			var panel:PanelView = event.target as PanelView;
+			if (panel.hasRollover)
+			{
+				panel.rolloverBG.alpha = 0;
+			}
+		}
+
+		private function overPanel (event:MouseEvent):void
+		{
+			var panel:PanelView = event.target as PanelView;
+			if (panel.hasRollover)
+			{
+				panel.rolloverBG.alpha = .4;
+			}
+		}
+
+		private function makeVideoButton (holder:PanelView):void
+		{
+			holder.hasRollover = true;
+			var hitA:Shape = Drawing.drawBox (holder.width, holder.height, 0xff00ff, 0);
+			holder.addChild (hitA);
+			holder.mouseChildren = false;
+			holder.mouseEnabled = true;
+			holder.buttonMode = true;
+			holder.useHandCursor = true;
+			holder.addChild (hitA);
+			holder.addEventListener (MouseEvent.ROLL_OVER, overPanel);
+			holder.addEventListener (MouseEvent.ROLL_OUT, outPanel);
+			holder.addEventListener (MouseEvent.CLICK, onVideoClick);
+		}
+
+		private function onVideoClick (event:MouseEvent):void
+		{
+			if (!_showingVideo)
+			{
+				showVideo ();
+			}
+			else
+			{
+				hideVideo ();
+			}
+		}
+
+		private function hideVideo ():void
+		{
+			// stop the video
+
+			nissanVideoPlayer.onStopClick ();
+
+			_mainOutline.graphics.clear ();
+			var topTextPanel:PanelView = _holder.getChildAt (1) as PanelView;
+			topTextPanel.videoPlayer.visible = false;
+			topTextPanel.textField.visible = true;
+			// move all back up
+			for (var i:int = 2; i < _holder.numChildren; i++)
+			{
+				var child:DisplayObject = _holder.getChildAt (i);
+				if (child is PanelView)
+				{
+					if (i == 2)
+					{
+						TweenMax.to (child, .5, {y:child.y - _diff, onComplete:videoClipHidden});
+					}
+					else
+					{
+						TweenMax.to (child, .5, {y:child.y - _diff});
+					}
+				}
+			}
+		}
+
+		private function videoClipHidden ():void
+		{
+			redrawOutline ();
+			// show the line
+			var firstPanel:PanelView = _holder.getChildAt (1) as PanelView;
+			firstPanel.line.visible = true;
+
+			var bottomPanel:PanelView = _holder.getChildAt (_holder.numChildren - 2) as PanelView;
+			bottomPanel.textField.htmlText = '"<p class="whiteTitle">Video review</p>"';
+
+			var triangle:DisplayObject = bottomPanel.getChildAt (bottomPanel.numChildren - 1);
+
+			triangle.x = bottomPanel.textField.textWidth + 22;
+			triangle.y = 18;
+			bottomPanel.addChild (triangle);
+			_showingVideo = false;
+		}
+
+		private function showVideo ():void
+		{
+			_mainOutline.graphics.clear ();
+			// hide text (not tile so 1)
+			var topTextPanel:PanelView = _holder.getChildAt (1) as PanelView;
+			topTextPanel.textField.visible = false;
+			// move other containers down
+			var curHeight:Number = topTextPanel.height;
+			// if (!_diff) {
+			_diff = DisplayConstants.INFO_VIDEO_HEIGHT - curHeight;
+			trace ("<><><><><><><> dif set...:" + _diff);
+			// }
+
+			// trace("<><><><><><><> dif set...:"+_diff);
+			// move all lower ones down
+
+			var firstPanel:PanelView = _holder.getChildAt (1) as PanelView;
+			firstPanel.line.visible = false;
+
+			for (var i:int = 2; i < _holder.numChildren; i++)
+			{
+				var child:DisplayObject = _holder.getChildAt (i);
+				if (child is PanelView)
+				{
+					if (i == 2)
+					{
+						TweenMax.to (child, .5, {y:child.y + _diff, onComplete:showVideoClip});
+					}
+					else
+					{
+						TweenMax.to (child, .5, {y:child.y + _diff});
+					}
+				}
+			}
+			var e:Event = new Event ("showVideo", true);
+			dispatchEvent (e);
+		}
+
+		private function showVideoClip ():void
+		{
+			redrawOutline ();
+			var vidPanel:PanelView = _holder.getChildAt (1) as PanelView;
+			_vidLoader = LoaderMax.getLoader (_vo.infoVid) as VideoLoader;
+			nissanVideoPlayer = new NissanVideoPlayer (_vidLoader);
+			vidPanel.addChild (nissanVideoPlayer);
+			// fixme this is bad- this refernce should not be stored at all
+			vidPanel.videoPlayer = nissanVideoPlayer;
+			// swap text for bottom panel
+			var bottomPanel:PanelView = _holder.getChildAt (_holder.numChildren - 2) as PanelView;
+			bottomPanel.textField.htmlText = '"<p class="whiteTitle">Exit video review</p>"';
+
+			var triangle:DisplayObject = bottomPanel.getChildAt (bottomPanel.numChildren - 1);
+
+			triangle.x = bottomPanel.textField.textWidth + 22;
+			triangle.y = 18;
+			bottomPanel.addChild (triangle);
+
+			_showingVideo = true;
+		}
+
+		private function redrawOutline ():void
+		{
+			_mainOutline.graphics.clear ();
+			_mainOutline.graphics.lineStyle (1, 0xffffff, DisplayConstants.LINE_ALPHA);
+			_mainOutline.graphics.beginFill (0xff0000, 0);
+			_mainOutline.graphics.drawRect (0, 0, DisplayConstants.INFO_PANEL_WIDTH, _holder.height - 2);
+		}
+
+		public function pause ():void
+		{
+		}
+
+		public function destroy ():void
+		{
+			while (numChildren > 0)
+			{
+				removeChildAt (0);
+			}
+		}
+
+		public function show ():void
+		{
+			TweenMax.to (this, 2, {autoAlpha:1, delay:5});
+		}
+
+		public function hide ():void
+		{
+			TweenMax.to (this, 2, {autoAlpha:0});
+		}
+
+		public function showAltText (boolean:Boolean):void
+		{
+			for (var i:int = 0; i < _holder.numChildren; i++)
+			{
+				if (_holder.getChildAt (i) is PanelView)
+				{
+					var panelView:PanelView = _holder.getChildAt (i) as PanelView;
+					// has alt text
+					if (panelView.vo.altText )
+					{
+						if (boolean)
+						{
+							panelView.textField.htmlText = panelView.vo.altText;
+						}
+						else
+						{
+							panelView.textField.htmlText = panelView.vo.copy;
+						}
+					}
+				}
+			}
+		}
+	}
+}

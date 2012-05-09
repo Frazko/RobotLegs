@@ -1,0 +1,40 @@
+package dna.nissan.leafscience.model.vo {
+
+	/**
+	 * model.vo.SectionVO
+	 *
+	 * @author YourName
+	 */
+	public class SectionVO {
+		private var _id : String;
+		private var _title : String;
+		private var _videoID : String;
+		public var swfID : String;
+		public var infoVO : InfoVO;
+		public var disclaimer : String;
+				
+		public function get id() : String {
+			return _id;
+		}
+
+		public function get title() : String {
+			return _title;
+		}
+
+		public function set id(id : String) : void {
+			_id = id;
+		}
+
+		public function set title(title : String) : void {
+			_title = title;
+		}
+
+		public function get videoID() : String {
+			return _videoID;
+		}
+
+		public function set videoID(videoID : String) : void {
+			_videoID = videoID;
+		}
+	}
+}

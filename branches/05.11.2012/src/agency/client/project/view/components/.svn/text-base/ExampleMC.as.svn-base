@@ -1,0 +1,43 @@
+package dna.nissan.leafscience.view.components {
+	import flash.display.MovieClip;
+
+	/**
+	 * @author acolling
+	 */
+	public class ExampleMC extends MovieClip {
+		
+		
+		public function ExampleMC() {
+			
+			//called immediately
+			initDisplay();
+		}
+
+
+
+		private function initDisplay() : void {
+			
+			//setup
+			
+		}
+		
+		
+		
+		public function show() : void {
+			
+			//start animation
+		}
+
+		public function pause() : void {
+			
+			//stop animations
+		}
+
+		public function destroy() : void {
+			
+			//kill everything
+		}
+		
+		
+	}
+}

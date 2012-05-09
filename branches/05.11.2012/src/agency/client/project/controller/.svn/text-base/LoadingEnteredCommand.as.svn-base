@@ -1,0 +1,39 @@
+package dna.nissan.leafscience.controller {
+	import dna.nissan.leafscience.constants.FSMConstants;
+	import dna.nissan.leafscience.model.AppModel;
+	import dna.nissan.leafscience.model.services.AssetService;
+	import dna.nissan.leafscience.model.services.FWFService;
+
+	import org.osflash.statemachine.core.IFSMController;
+	import org.robotlegs.mvcs.SignalCommand;
+	/**
+	 * @author Karl Freeman 2011 (c) karlfreeman.co.uk
+	 */
+	public class LoadingEnteredCommand extends SignalCommand {
+		[Inject]
+		public var fsmController : IFSMController;
+		[Inject]
+		public var assetService : AssetService;
+		[Inject]
+		public var appModel : AppModel;
+		[Inject]
+		public var fwfService : FWFService;
+
+		override public function execute() : void {
+			trace("LoadingEnteredCommand.execute()");
+			
+			// Listen to the loading to complete
+			assetService.loaded.addOnce(onLoaded);
+			trace("should be calling load() on assets service from LoadingEnteredCommand.....");
+			//Parse the XML from the FWF config
+			assetService.load(fwfService.config);
+			
+			
+		}
+
+		private function onLoaded() : void {
+			trace("LoadingEnteredCommand.onLoaded()  everything is -loaded now about to push to next state");
+			fsmController.action(FSMConstants.NEXT);
+		}
+	}
+}

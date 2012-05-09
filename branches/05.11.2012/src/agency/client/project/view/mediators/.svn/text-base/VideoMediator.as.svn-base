@@ -1,0 +1,97 @@
+package dna.nissan.leafscience.view.mediators {
+	import dna.nissan.leafscience.constants.FSMConstants;
+	import dna.nissan.leafscience.model.AppModel;
+	import dna.nissan.leafscience.model.vo.ResizeVO;
+	import dna.nissan.leafscience.model.vo.SectionVO;
+	import dna.nissan.leafscience.signals.ForceDestroy;
+	import dna.nissan.leafscience.view.components.VideoView;
+
+	import org.osflash.statemachine.core.IPayload;
+	import org.osflash.statemachine.core.ISignalState;
+
+	/**
+	 * view.mediators.IntroVideoMediator
+	 *
+	 * @author YourName
+	 */
+	public class VideoMediator extends AbstractMediator implements IHasStateTransition, IHasResizeSignal {
+		[Inject]
+		public var view : VideoView;
+		[Inject(name="state/introvideo")]
+		public var introVideoState : ISignalState;
+		[Inject(name="state/disposablemenu")]
+		public var disposableMenuState : ISignalState;
+		[Inject(name="state/sectionvideo")]
+		public var sectionVideo : ISignalState;
+		[Inject(name="state/sectionswf")]
+		public var sectionSWF : ISignalState;
+		[Inject]
+		public var appModel : AppModel;
+		[Inject]
+		public var forceDestroy : ForceDestroy;
+
+		override public function onRegister() : void {
+			// trace("VideoMediator.onRegister()");
+			forceDestroy.add(onForceDestroy);
+			introVideoState.entered.add(onIntroVideoStateEntered);
+			disposableMenuState.entered.add(onDisposableEntered);
+			sectionVideo.entered.add(onSectionVideoEntered);
+			sectionSWF.entered.add(onSectionSWFEntered);
+			resizeSignal.add(onResize);
+		}
+		
+		override public function onRemove() : void {
+			// trace("VideoMediator.onRegister()");
+			forceDestroy.remove(onForceDestroy);
+			introVideoState.entered.remove(onIntroVideoStateEntered);
+			disposableMenuState.entered.remove(onDisposableEntered);
+			sectionVideo.entered.remove(onSectionVideoEntered);
+			sectionSWF.entered.remove(onSectionSWFEntered);
+			resizeSignal.remove(onResize);
+		}
+
+		private function onForceDestroy() : void {
+			trace("force destroy in SECTION MED");
+			onRemove();
+			view.destroy();
+		}
+
+		private function onSectionSWFEntered(payload : IPayload) : void {
+			trace("VideoMediator.onSectionSWFEntered(payload)");
+			view.destroy();
+		}
+
+		private function onSectionVideoEntered(payload : IPayload) : void {
+			trace("VideoMediator.onSectionVideoEntered(payload)");
+			var vo : SectionVO = appModel.selectedSection as SectionVO;
+			view.setVideo(vo.videoID);
+			view.alpha = .2;
+			onResize(fwfService.resizeVO);
+		}
+
+		private function onDisposableEntered(payload : IPayload) : void {
+			trace("VideoMediator.onDisposableEntered(payload)");
+			view.destroy();
+		}
+
+		private function onIntroVideoStateEntered(payload : IPayload) : void {
+			trace("VideoMediator.onIntroVideoStateEntered(payload)");
+			view.setVideo("intro-video");
+			view.videoCompleted.add(onVideoCompleted);
+
+			// Set correct size
+			onResize(fwfService.resizeVO);
+		}
+
+		private function onVideoCompleted() : void {
+			trace("VideoMediator.onVideoCompleted()");
+			fsmController.action(FSMConstants.NEXT);
+		}
+
+		override public function onResize(resizeVO : ResizeVO) : void {
+			trace("VideoMediator.onResize(resizeVO)  ");
+			view.x = (resizeVO.width * 0.5) - (view.width * 0.5);
+			view.y = (resizeVO.height * 0.5) - (view.height * 0.5);
+		}
+	}
+}

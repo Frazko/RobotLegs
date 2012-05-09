@@ -1,0 +1,50 @@
+package dna.nissan.leafscience.view.mediators {
+	import dna.nissan.leafscience.view.components.PreLoaderMC;
+	import org.osflash.statemachine.core.IPayload;
+	import org.osflash.statemachine.core.ISignalState;
+	import dna.nissan.leafscience.model.vo.ProgressVO;
+	import dna.nissan.leafscience.signals.ProgressSignal;
+	import dna.nissan.leafscience.view.components.PreloaderView;
+	import dna.nissan.leafscience.model.vo.ResizeVO;
+	import dna.nissan.leafscience.view.mediators.AbstractMediator;
+
+	/**
+	 * @author acolling
+	 */
+	public class PreloaderMediator extends AbstractMediator {
+		[Inject]
+		public var view : PreLoaderMC;
+		[Inject]
+		public var progressSignal:ProgressSignal;
+		[Inject(name="state/initialloadingcomplete")]
+		public var loadingComplete:ISignalState;
+
+
+		override public function onRegister() : void {
+			trace("TesterMediator.onRegister()  !!!!!!!!!!!!!");
+			resizeSignal.add(onResize);
+			loadingComplete.entered.addOnce(onLoadingComplete);
+			progressSignal.add(onProgress);
+			onResize(fwfService.resizeVO);
+		}
+
+		private function onLoadingComplete(payload:IPayload) : void {
+			
+			view.hide();
+			
+		}
+
+		private function onProgress(vo:ProgressVO) : void {
+			//trace("showprogress:"+vo.progress);
+			
+			view.showProgress(Math.round(vo.progress*100));
+		}
+
+		override public function onResize(resizeVO : ResizeVO) : void {
+			trace("resize in preloader:"+resizeVO.width+":"+resizeVO.height);
+			trace("width:"+view.width);
+			view.x = (resizeVO.width * .5);//-(view.width*.5);
+			view.y = (resizeVO.height*.5 );//-(view.height*.5);
+		}
+	}
+}

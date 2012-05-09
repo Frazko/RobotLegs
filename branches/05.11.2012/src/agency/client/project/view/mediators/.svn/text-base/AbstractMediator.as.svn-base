@@ -1,0 +1,40 @@
+// // ////////////////////////////////////////////////////////////////////////////
+// Code stub generated with:
+// Crocus Modeller
+// Robust UML editor for AS3 & Flex devs.
+// http://CrocusModeller.com
+//
+// // ////////////////////////////////////////////////////////////////////////////
+package dna.nissan.leafscience.view.mediators {
+	import com.greensock.TweenLite;
+	import dna.nissan.leafscience.model.vo.ResizeVO;
+	import dna.nissan.leafscience.model.services.FWFService;
+	import dna.nissan.leafscience.model.vo.SectionVO;
+	import dna.nissan.leafscience.signals.ResizeSignal;
+
+	import org.osflash.statemachine.core.IFSMController;
+	import org.robotlegs.mvcs.Mediator;
+
+	/**
+	 * view.AbstractMediator
+	 *
+	 * @author YourName
+	 */
+	public class AbstractMediator extends Mediator {
+		[Inject]
+		public var fsmController : IFSMController;
+		[Inject]
+		public var fwfService : FWFService;
+		[Inject]
+		public var resizeSignal : ResizeSignal;
+		
+		public function transitionIn() : void {
+		}
+
+		public function transitionOut(sectionVO : SectionVO) : void {
+		}
+
+		public function onResize(resizeVO : ResizeVO) : void {
+		}
+	}
+}

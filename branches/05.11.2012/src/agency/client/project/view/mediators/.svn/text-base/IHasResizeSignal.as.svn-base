@@ -1,0 +1,6 @@
+package dna.nissan.leafscience.view.mediators {
+	import dna.nissan.leafscience.model.vo.ResizeVO;
+	public interface IHasResizeSignal {
+		function onResize(resizeVO:ResizeVO):void;
+	}
+}

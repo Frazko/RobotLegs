@@ -1,0 +1,81 @@
+package dna.nissan.leafscience.view.components {
+	import com.greensock.plugins.AutoAlphaPlugin;
+	import com.greensock.TweenMax;
+	import flash.filters.GlowFilter;
+	import dna.nissan.leafscience.model.constants.DisplayConstants;
+	import graphics.Drawing;
+
+	import flash.display.Shape;
+	import flash.display.Sprite;
+	import flash.geom.Rectangle;
+
+	/**
+	 * @author acolling
+	 */
+	public class PreloaderView extends Sprite {
+		private var _holder : Sprite;
+		private var _circle : Sprite;
+		public static const CIRCLE_RADIUS : uint = 150;
+		private var _bg : Shape;
+		private var _topCircle : Shape;
+		private var _mask : Sprite;
+
+		public function PreloaderView() {
+			_holder = new Sprite();
+			addChild(_holder);
+
+
+			_circle = new Sprite();
+			_circle.graphics.beginFill(0xff00ff, 0);
+			_circle.graphics.lineStyle(5, 0x96EAFF);
+			_topCircle = new Shape();
+			_topCircle.graphics.lineStyle(1,0x0, 0);
+			_topCircle.graphics.beginFill(DisplayConstants.DARK_NAVY, 1);
+			_topCircle.graphics.drawCircle(150, 150, CIRCLE_RADIUS);
+			
+			// _holder.rotation = -90;
+			// _circle.graphics.drawCircle(100, 100, 100);
+			_holder.addChild(_circle);
+			_holder.addChild(_topCircle);
+			_holder.rotation = -90;
+			_holder.cacheAsBitmap = true;
+			_mask = new Sprite();
+			_mask.graphics.lineStyle(5, 0xFFF157);
+			_mask.graphics.beginFill(0xFFF157, 0);
+			_mask.graphics.drawCircle(150, 150, 150);
+			_mask.cacheAsBitmap = true;
+		//	_holder.addChild(_mask); 
+		//	_circle.mask = _mask;
+			
+			var filter:GlowFilter = new GlowFilter(0xCAF4FF, 1, 20, 20, 2, 3);
+	//		_holder.filters = [filter];
+			showProgress(0.01);
+			
+			
+		}
+
+		public function showProgress(n : Number) : void {
+			_topCircle.visible = true;
+			var total : int = Math.round(360 * n);
+			// Drawing.drawArc(_circle, new Point(CIRCLE_WIDTH*.5 , CIRCLE_WIDTH*.5), CIRCLE_WIDTH*.5, 0, 90, 90);
+			//Drawing.drawArc(_circle, CIRCLE_RADIUS, CIRCLE_RADIUS, 0, total, 1);
+		}
+
+		public function pause() : void {
+		}
+
+		public function destroy() : void {
+			trace("PreloaderView.destroy()  ");
+			_circle.graphics.clear();
+			_topCircle.visible = false;
+		}
+
+		public function show() : void {
+		}
+
+		public function hide() : void {
+			trace("PreloaderView.hide()  ");
+			TweenMax.to(_circle, .5, {autoAlpha:0, onComplete:destroy});
+		}
+	}
+}

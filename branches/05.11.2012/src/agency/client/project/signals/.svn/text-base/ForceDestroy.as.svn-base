@@ -1,0 +1,13 @@
+package dna.nissan.leafscience.signals {
+	import org.osflash.signals.Signal;
+
+	/**
+	 * @author acolling
+	 */
+	public class ForceDestroy extends Signal {
+		public function ForceDestroy() {
+			super();
+		}
+		
+	}
+}

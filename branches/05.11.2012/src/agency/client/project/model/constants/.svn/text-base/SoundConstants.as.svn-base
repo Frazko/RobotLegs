@@ -1,0 +1,18 @@
+package dna.nissan.leafscience.model.constants {
+	/**
+	 * @author acolling
+	 */
+	public class SoundConstants {
+		public static const MENU_CLOSE 		: String = "menuclose";
+		public static const MENU_OUT 		: String = "menuout";
+		public static const HARSH_WUB 		: String = "harshwub";
+		public static const ROLL_OVER 		: String = "rollover";
+		public static const CLICK 			: String = "click";
+		public static const SECTION_ENTERED : String = "sectionentered";
+		public static const SONAR			: String = "sonar";
+		public static const STOP			: String = "stop";
+		public static const MENU_OPEN		: String = "menuopen";
+		public static const POWER			: String = "power";
+		public static const SELECTOR		: String = "selector";
+	}
+}

@@ -1,0 +1,18 @@
+<main>
+	<section id="dogs" title="<![CDATA[Dogs in Fancy Dress]]>" copy="<![CDATA[Dogs love to dress up]]>">
+		<image title="<![CDATA[dog 1]]>" source="dogs1.jpeg" />
+		<image title="<![CDATA[dog 2]]>" source="dogs2.jpeg" />
+		<image title="<![CDATA[dog 3]]>" source="dogs3.jpeg" />
+		<image title="<![CDATA[dog 4]]>" source="dogs4.jpeg" />
+	</section>
+	<section id="sloths" title="<![CDATA[Sloths]]>" copy="<![CDATA[Sloths are the laziest animal]]>">
+		<image title="<![CDATA[sloth 1]]>" source="sloth1.jpeg" />
+		<image title="<![CDATA[sloth 2]]>" source="sloth2.jpeg" />
+		<image title="<![CDATA[sloth 3]]>" source="sloth3.jpeg" />
+	</section>
+	<section id="sharks" title="<![CDATA[Sharks!]]>" copy="<![CDATA[Sharks are dangerous]]>">
+		<image title="<![CDATA[shark 1]]>" source="shark1.jpeg" />
+		<image title="<![CDATA[shark 2]]>" source="shark2.jpeg" />
+		<image title="<![CDATA[shark 3]]>" source="shark3.jpeg" />
+	</section>
+</main>

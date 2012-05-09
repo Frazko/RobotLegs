@@ -1,0 +1,69 @@
+package dna.nissan.leafscience.model.services {
+	import com.nissan.fwf.api.NissanAPI;
+	import com.nissan.fwf.api.tools.ILink;
+	import dna.nissan.leafscience.model.vo.ResizeVO;
+
+	import flash.events.Event;
+
+	import dna.nissan.leafscience.signals.ResizeSignal;
+
+	import com.nissan.fwf.api.conf.IResizeManager;
+	import com.nissan.fwf.api.ISystem;
+
+	import org.robotlegs.mvcs.Actor;
+
+	/**
+	 * model.services.FWFService
+	 *
+	 * @author YourName
+	 */
+	public class FWFService extends Actor {
+		[Inject]
+		public var system : ISystem;
+		[Inject]
+		public var resizeManager : IResizeManager;
+		[Inject]
+		public var resizeSignal : ResizeSignal;
+		
+		private var _resizeVO : ResizeVO = new ResizeVO();
+
+		public function FWFService() : void {
+			trace("fwf service");
+		}
+
+		[PostConstruct]
+		public function init() : void {
+			if (!resizeManager.hasEventListener(Event.RESIZE)) {
+				resizeManager.addEventListener(Event.RESIZE, onResize);
+				onResize(null);
+			}
+		}
+
+		private function onResize(e : Event) : void {
+			_resizeVO.width = resizeManager.width;
+			_resizeVO.height = resizeManager.height;
+			resizeSignal.dispatch(_resizeVO);
+			trace("FWFService.onResize(e)  ");
+		}
+
+		public function get resizeVO() : ResizeVO {
+			return _resizeVO;
+		}
+		
+		public function get width() : int {
+			return _resizeVO.width;
+		}
+
+		public function get height() : int {
+			return _resizeVO.height;
+		}
+
+		public function get config() : XML {
+			return system.getConfiguration().getDatas("fwf_author_config");
+		}
+		
+		public function getLinkByID(id:String) :ILink {
+			return NissanAPI.getLink(config.link.(@id == id) as XML);
+		}
+	}
+}

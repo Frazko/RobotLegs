@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/nissan/!svn/ver/1905/60210408-Nissan-Leaf-Science/trunk/src/dna/nissan/leafscience/model/services
+END
+AssetService.as
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/nissan/!svn/ver/1905/60210408-Nissan-Leaf-Science/trunk/src/dna/nissan/leafscience/model/services/AssetService.as
+END
+FWFService.as
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/nissan/!svn/ver/1585/60210408-Nissan-Leaf-Science/trunk/src/dna/nissan/leafscience/model/services/FWFService.as
+END
+TrackingService.as
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/nissan/!svn/ver/1514/60210408-Nissan-Leaf-Science/trunk/src/dna/nissan/leafscience/model/services/TrackingService.as
+END
+SoundService.as
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/nissan/!svn/ver/1820/60210408-Nissan-Leaf-Science/trunk/src/dna/nissan/leafscience/model/services/SoundService.as
+END

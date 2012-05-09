@@ -1,0 +1,15 @@
+package dna.nissan.leafscience.model.vo {
+	/**
+	 * @author acolling
+	 */
+	public class PanelVO {
+		
+		public var copy:String;//only used for text panels		
+		public var extLink:String; //only used for link modules
+		public var videoID : String;
+		// references ID used by LoaderMax
+		public var altText : String;
+		public var isVideoButton : Boolean;
+		
+	}
+}

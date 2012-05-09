@@ -1,0 +1,25 @@
+package dna.nissan.leafscience.model.vo {
+	/**
+	 * @author Karl Freeman 2011 (c) karlfreeman.co.uk
+	 */
+	public class ResizeVO {
+		private var _height : int;
+		private var _width : int;
+
+		public function get width() : int {
+			return _width;
+		}
+
+		public function set width(value : int) : void {
+			_width = value;
+		}
+
+		public function get height() : int {
+			return _height;
+		}
+
+		public function set height(value : int) : void {
+			_height = value;
+		}
+	}
+}

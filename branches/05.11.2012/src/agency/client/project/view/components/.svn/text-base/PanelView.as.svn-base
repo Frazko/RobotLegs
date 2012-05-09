@@ -1,0 +1,18 @@
+package dna.nissan.leafscience.view.components {
+	import flash.display.Shape;
+	import flash.text.TextField;
+	import dna.nissan.leafscience.model.vo.PanelVO;
+	import flash.display.Sprite;
+
+	/**
+	 * @author acolling
+	 */
+	public class PanelView extends Sprite {
+		public var vo : PanelVO;
+		public var textField : TextField;
+		public var videoPlayer : NissanVideoPlayer;
+		public var rolloverBG : Shape;
+		public var hasRollover : Boolean;
+		public var line : Shape;
+	}
+}

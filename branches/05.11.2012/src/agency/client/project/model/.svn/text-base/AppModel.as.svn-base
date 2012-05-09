@@ -1,0 +1,26 @@
+package dna.nissan.leafscience.model {
+	import dna.nissan.leafscience.model.vo.SectionVO;
+
+	import org.robotlegs.mvcs.Actor;
+
+	/**
+	 * model.AppModel
+	 *
+	 * @author YourName
+	 */
+	public class AppModel extends Actor {
+		private var _sections : Array;
+		public var selectedSection : SectionVO;
+
+		public function AppModel() : void {
+			_sections = [];
+		}
+		public function addSection(sectionVO : SectionVO) : void {
+			_sections[_sections.length] = sectionVO;
+		}
+
+		public function get sections() : Array {
+			return _sections;
+		}
+	}
+}

@@ -1,0 +1,13 @@
+package dna.nissan.leafscience.model.vo {
+	/**
+	 * @author acolling
+	 */
+	public class InfoVO {
+		
+		//contains PanelVOs		
+		public var panels : Array;
+		public var infoVid : String;
+		public var id : String;
+		
+	}
+}

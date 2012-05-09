@@ -1,0 +1,144 @@
+package dna.nissan.leafscience.view.components {
+	import flash.events.MouseEvent;
+
+	import com.greensock.events.LoaderEvent;
+
+	import dna.nissan.leafscience.model.constants.DisplayConstants;
+
+	import flash.media.Video;
+
+	import com.greensock.loading.VideoLoader;
+
+	import flash.display.Sprite;
+
+	/**
+	 * @author acolling
+	 */
+	public class NissanVideoPlayer extends Sprite {
+		private var _videoLoader : VideoLoader;
+		private var _video : Video;
+		private var _play : Sprite;
+		private static const VID_WIDTH : uint = 238;
+		private static const VID_HEIGHT : uint= 160;
+		private var _stop : Sprite;
+		private var _progress : Sprite;
+
+		public function NissanVideoPlayer(video : VideoLoader) {
+			_videoLoader = video;
+			_video = _videoLoader.rawContent as Video;
+			_video.width = VID_WIDTH;
+			_video.height = VID_HEIGHT;
+			addChild(_video);
+			addVideoListeners();
+			createControls();
+			addControlListeners();
+			x = 1;
+		}
+
+		private function addControlListeners() : void {
+			_play.addEventListener(MouseEvent.CLICK, onPlayClick);
+			makeButton(_play);
+			_stop.addEventListener(MouseEvent.CLICK, onStopClick);
+			makeButton(_stop);
+			addEventListener(MouseEvent.ROLL_OVER, onRollOver);
+			addEventListener(MouseEvent.ROLL_OUT, onRollOut);
+		}
+
+		private function removeControlListeners() : void {
+			_play.removeEventListener(MouseEvent.CLICK, onPlayClick);
+			_stop.removeEventListener(MouseEvent.CLICK, onStopClick);
+			removeEventListener(MouseEvent.ROLL_OVER, onRollOver);
+			removeEventListener(MouseEvent.ROLL_OUT, onRollOut);
+		}
+		
+		private function makeButton(sprite : Sprite) : void {
+			
+			sprite.buttonMode = true;
+			sprite.useHandCursor = true;
+			sprite.mouseChildren = false;
+			
+		}
+
+		private function onRollOut(event : MouseEvent) : void {
+			
+			_stop.alpha = 0;
+			
+		}
+
+		private function onRollOver(event : MouseEvent) : void {
+			_stop.alpha = 1;
+		}
+
+		public function onStopClick(event : MouseEvent = null) : void {
+			trace("NissanVideoPlayer.onStopClick(event)  ");
+				_videoLoader.pauseVideo();
+				_videoLoader.playProgress = 0;
+				_play.visible = true;
+				_stop.visible = false;
+		}
+
+		
+
+		private function onPlayClick(event : MouseEvent) : void {
+			trace("play clicked")
+				_videoLoader.playProgress = 0;
+				_videoLoader.playVideo();
+				_play.visible = false;
+				_stop.visible = true;
+		}
+
+		public function destroy() : void {
+			_videoLoader.pause();
+			_videoLoader.unload();
+			_videoLoader.removeEventListener(VideoLoader.PLAY_PROGRESS, onPlayProgress);
+			_videoLoader = null;
+			removeControlListeners();
+		}
+
+		private function addVideoListeners() : void {
+			_videoLoader.addEventListener(VideoLoader.PLAY_PROGRESS, onPlayProgress);
+			_videoLoader.addEventListener(VideoLoader.VIDEO_COMPLETE, onVideoComplete);
+		}
+
+		private function onVideoComplete(event : LoaderEvent) : void {
+			trace("NissanVideoPlayer.onVideoComplete(event)  ");
+			_videoLoader.playProgress = 0;
+			_stop.visible = false;
+			_play.visible = true;
+		}
+
+		private function onPlayProgress(event : LoaderEvent) : void {
+			//trace("progress:" + _videoLoader.playProgress);
+			_progress.scaleX = _videoLoader.playProgress;
+		}
+
+		private function createControls() : void {
+			var triangleSize : uint = 30;
+
+			_play = new Sprite();
+			_play.graphics.beginFill(DisplayConstants.YELLOW);
+			_play.graphics.lineTo(0, 30);
+			_play.graphics.lineTo(30, 15);
+			_play.graphics.lineTo(0, 0);
+			_play.x = (.5 * VID_WIDTH) - (.5 * _play.width);
+			_play.y = (.5 * VID_HEIGHT) - (.5 * _play.height);
+			
+			addChild(_play);
+
+			_stop = new Sprite();
+			_stop.graphics.beginFill(DisplayConstants.YELLOW);
+			_stop.graphics.drawRect(0, 0, triangleSize, triangleSize);
+			_stop.x = (.5 * VID_WIDTH) - (.5 * _stop.width);
+			_stop.y = _play.y;
+			_stop.visible = false;
+			addChild(_stop);
+
+			_progress = new Sprite();
+			_progress.graphics.beginFill(DisplayConstants.YELLOW);
+			_progress.graphics.drawRect(0, 0, VID_WIDTH, 20);
+			_progress.y = VID_HEIGHT - 20;
+			_progress.scaleX = 0;
+			addChild(_progress);
+		}
+	}
+}

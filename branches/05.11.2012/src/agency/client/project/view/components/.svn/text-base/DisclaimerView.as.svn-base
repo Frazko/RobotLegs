@@ -1,0 +1,62 @@
+package dna.nissan.leafscience.view.components {
+	import dna.nissan.leafscience.model.constants.DisplayConstants;
+	import dna.nissan.leafscience.model.vo.SectionVO;
+
+	import graphics.Drawing;
+
+	import com.greensock.loading.CSSLoader;
+	import com.greensock.loading.LoaderMax;
+
+	import flash.display.Shape;
+	import flash.display.Sprite;
+	import flash.text.AntiAliasType;
+	import flash.text.StyleSheet;
+	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
+
+	/**
+	 * @author acolling
+	 */
+	public class DisclaimerView extends Sprite
+	{
+		private static const TMP_TF_WIDTH_ADJUSTMENT:uint = 18;
+		private var disclaimer : Sprite;
+		private var textField : TextField;
+
+		public function DisclaimerView() {
+			initDisplay();
+		}
+
+		private function initDisplay() : void {
+			
+			var s:Shape = Drawing.drawBox(300, 3000, 0xff00ff);
+			//addChild(s);
+			
+			var cssLoader : CSSLoader = LoaderMax.getLoader("global-css") as CSSLoader;
+			var styleSheet : StyleSheet = cssLoader.content as StyleSheet;
+			
+			disclaimer = new Sprite();
+			textField = new TextField();
+			textField.styleSheet = styleSheet;
+			textField.embedFonts = true;
+			textField.multiline = true;
+			textField.wordWrap = true;
+			textField.autoSize = TextFieldAutoSize.LEFT;
+			textField.width = DisplayConstants.INFO_PANEL_WIDTH - (2 * DisplayConstants.INFO_PANEL_PADDING) + TMP_TF_WIDTH_ADJUSTMENT;
+			textField.antiAliasType = AntiAliasType.ADVANCED;
+			//textField.htmlText = '"<p class="whiteDisclaimer">*Dependent on driving conditions.<br>Average distances provided by the National Travel Survey!!!!!!!</p>"';
+			//todo add to xml
+		//	textField.htmlText = '"<p class="whiteDisclaimer">*Dependent on driving conditions.<br>Average distances provided by the National Travel Survey</p>"';
+		//	textField.x = DisplayConstants.INFO_PANEL_PADDING;
+		//	textField.y = DisplayConstants.INFO_PANEL_PADDING;
+			// disc1.textField = textField;
+			disclaimer.addChild(textField);
+			addChild(disclaimer);
+			
+		}
+		
+		public function showSection(vo:SectionVO):void{
+			textField.htmlText = vo.disclaimer;
+		}
+	}
+}

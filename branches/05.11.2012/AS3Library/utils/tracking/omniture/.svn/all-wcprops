@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/nissan/!svn/ver/1136/60012856-Care-Flash/trunk/src/com/digitas/utils/tracking/omniture
+END
+Omniture.as
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/nissan/!svn/ver/1136/60012856-Care-Flash/trunk/src/com/digitas/utils/tracking/omniture/Omniture.as
+END
+OmnitureSettings.as
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/nissan/!svn/ver/1099/60012856-Care-Flash/trunk/src/com/digitas/utils/tracking/omniture/OmnitureSettings.as
+END
+OmnitureTrackCommand.as
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/nissan/!svn/ver/1136/60012856-Care-Flash/trunk/src/com/digitas/utils/tracking/omniture/OmnitureTrackCommand.as
+END
+OmnitureTrack.as
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/nissan/!svn/ver/1058/60012856-Care-Flash/trunk/src/com/digitas/utils/tracking/omniture/OmnitureTrack.as
+END
+OmnitureVO.as
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/nissan/!svn/ver/1099/60012856-Care-Flash/trunk/src/com/digitas/utils/tracking/omniture/OmnitureVO.as
+END
+OmnitureProductVO.as
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/nissan/!svn/ver/1058/60012856-Care-Flash/trunk/src/com/digitas/utils/tracking/omniture/OmnitureProductVO.as
+END

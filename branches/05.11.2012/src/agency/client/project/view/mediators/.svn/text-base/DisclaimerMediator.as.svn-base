@@ -1,0 +1,56 @@
+package dna.nissan.leafscience.view.mediators {
+	import dna.nissan.leafscience.model.AppModel;
+	import dna.nissan.leafscience.model.vo.InfoVO;
+	import dna.nissan.leafscience.model.vo.ResizeVO;
+	import dna.nissan.leafscience.model.vo.SectionVO;
+	import dna.nissan.leafscience.signals.SwitchText;
+	import dna.nissan.leafscience.view.components.DisclaimerView;
+
+	import org.osflash.statemachine.core.IPayload;
+	import org.osflash.statemachine.core.ISignalState;
+
+	/**
+	 * @author acolling
+	 */
+	public class DisclaimerMediator extends AbstractMediator {
+		[Inject]
+		public var view : DisclaimerView;
+		[Inject(name="state/sectionswf")]
+		public var sectionSWF : ISignalState;
+		[Inject(name="state/sectionvideo")]
+		public var sectionVideo : ISignalState;
+		[Inject]
+		public var appModel : AppModel;
+		[Inject(name="state/disposablemenu")]
+		public var disposableMenuState : ISignalState;
+		[Inject]
+		public var switchText : SwitchText;
+		
+		
+		
+		override public function onRegister() : void {
+				sectionSWF.entered.add(onSectionEntered);
+				resizeSignal.add(onResize);
+		}
+		
+		private function onSectionEntered(payload : IPayload) : void {
+			// trace("SectionMediator.onSectionEntered(payload)  ");
+			var sectionVO : SectionVO = appModel.selectedSection;
+			if (!sectionVO) {
+				trace("DisclaimerMediator.onSectionEntered(payload)  {}{}{}{}{}{}{}{  NOTHING SECTION SET ON THE MODEL SO 0 IS CHOSEN BY DEFAULT");
+				sectionVO = appModel.sections[0] as SectionVO;
+			}
+			var infoVO : InfoVO = sectionVO.infoVO;
+			// TODO remove- only used for testing
+			view.showSection(sectionVO);
+			onResize(fwfService.resizeVO);
+		}
+			
+		override public function onResize(resizeVO : ResizeVO) : void {
+			
+			view.x = 10;
+			view.y = resizeVO.height - view.height - 10;	
+				
+		}
+	}
+}
